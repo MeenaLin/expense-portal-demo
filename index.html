@@ -1,0 +1,2597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BV Workplace — 數位辦公室與費用報銷系統 Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+/* ============================================================
+   ORBIS WORKPLACE — DESIGN TOKENS
+   Brand colour per spec: sidebar text/icon = #3bbcb3
+   ============================================================ */
+:root{
+  --ink:#12203B;
+  --slate-900:#0E1930;
+  --slate-700:#3D4C6B;
+  --slate-500:#6B7A99;
+  --slate-300:#AEB9CE;
+  --slate-100:#E7EAF2;
+  --bg:#F2F4F8;
+  --panel:#FFFFFF;
+  --line:#DDE2EC;
+  --brand:#3BBCB3;
+  --brand-ink:#1E7A73;
+  --brand-soft:#E2F7F5;
+  --accent:#3BBCB3;
+  --accent-ink:#1E7A73;
+  --accent-soft:#E2F7F5;
+  --brass:#9C6B2E;
+  --brass-soft:#F6EAD6;
+  --good:#1E8E5A;
+  --good-soft:#E6F5EC;
+  --warn:#9A6B00;
+  --warn-soft:#FBF0D6;
+  --bad:#B3392C;
+  --bad-soft:#FBE7E4;
+  --info:#2E5FA6;
+  --info-soft:#E6EEF9;
+  --hv:#6A4C93;
+  --hv-soft:#EFE6F5;
+  --radius:10px;
+  --font-body:Arial, Helvetica, sans-serif;
+  --font-display:Arial, Helvetica, sans-serif;
+  --font-mono:'IBM Plex Mono','Cascadia Code','SFMono-Regular',Consolas,monospace;
+  --shadow-sm:0 1px 2px rgba(14,25,48,.06), 0 1px 1px rgba(14,25,48,.04);
+  --shadow-md:0 6px 20px rgba(14,25,48,.10);
+}
+*,*::before,*::after{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:var(--font-body);font-size:14.5px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:var(--font-display);color:var(--slate-900);margin:0 0 .4em;letter-spacing:.01em;}
+h1{font-size:1.7rem;font-weight:700;}
+h2{font-size:1.2rem;font-weight:700;}
+h3{font-size:1rem;font-weight:700;}
+p{margin:0 0 .8em;color:var(--slate-700);}
+a{color:var(--accent-ink);}
+.mono{font-family:var(--font-mono);}
+button{font-family:var(--font-body);cursor:pointer;}
+table{border-collapse:collapse;width:100%;}
+th{text-align:left;font-family:var(--font-display);font-size:.72rem;letter-spacing:.04em;text-transform:uppercase;color:var(--slate-500);padding:8px 10px;border-bottom:1px solid var(--line);}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle;font-size:.88rem;}
+tr:last-child td{border-bottom:none;}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px;}
+::selection{background:var(--accent-soft);}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+
+/* ---------- Shell ---------- */
+#app{display:flex;min-height:100vh;}
+.sidebar{
+  width:232px;flex:0 0 232px;background:#fff;color:var(--slate-700);
+  display:flex;flex-direction:column;position:sticky;top:0;height:100vh;
+  border-right:1px solid var(--line);box-shadow:2px 0 14px rgba(20,30,50,.04);
+}
+.brand{display:flex;align-items:center;gap:10px;padding:20px 18px 16px;border-bottom:1px solid var(--line);}
+.brand-mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--brand),var(--brand-ink));display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;color:#fff;font-size:.95rem;flex:0 0 34px;}
+.brand-text .name{font-family:var(--font-display);font-weight:700;font-size:1rem;color:var(--brand-ink);line-height:1.15;}
+.brand-text .tag{font-size:.68rem;color:var(--slate-500);letter-spacing:.03em;}
+nav.mainnav{padding:12px 10px;flex:1;overflow-y:auto;}
+nav.mainnav .navlabel{font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;color:var(--slate-300);padding:14px 10px 6px;}
+nav.mainnav button.navitem{
+  display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:none;color:var(--brand-ink);
+  padding:9px 10px;border-radius:8px;font-size:.87rem;font-weight:600;margin-bottom:2px;transition:background .12s,color .12s;
+}
+nav.mainnav button.navitem .ic{width:18px;text-align:center;flex:0 0 18px;font-size:.95rem;color:var(--brand);}
+nav.mainnav button.navitem:hover{background:var(--brand-soft);}
+nav.mainnav button.navitem.active{background:var(--brand);color:#fff;}
+nav.mainnav button.navitem.active .ic{color:#fff;}
+.sidebar-foot{padding:12px 16px 16px;border-top:1px solid var(--line);font-size:.68rem;color:var(--slate-500);}
+
+.main-col{flex:1;min-width:0;display:flex;flex-direction:column;}
+.topbar{
+  position:sticky;top:0;z-index:20;background:var(--panel);border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:14px;padding:10px 22px;
+}
+.demo-banner{
+  background:repeating-linear-gradient(135deg,var(--brass-soft),var(--brass-soft) 10px,#fff 10px,#fff 20px);
+  border-bottom:1px solid var(--line);color:var(--brass);font-weight:700;font-size:.74rem;
+  padding:6px 22px;letter-spacing:.02em;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;
+}
+.lang-toggle{display:flex;gap:4px;}
+.lang-toggle button{border:1px solid var(--brass);background:#fff;color:var(--brass);border-radius:6px;padding:3px 10px;font-size:.7rem;font-weight:700;}
+.lang-toggle button.active{background:var(--brass);color:#fff;}
+.hamburger{display:none;background:none;border:1px solid var(--line);border-radius:8px;padding:6px 9px;font-size:1rem;}
+.topbar .title-block{flex:1;min-width:0;}
+.topbar .title-block .sub{font-size:.76rem;color:var(--slate-500);}
+.identity-switch{position:relative;}
+.identity-btn{
+  display:flex;align-items:center;gap:9px;background:var(--slate-100);border:1px solid var(--line);
+  border-radius:10px;padding:6px 12px 6px 8px;
+}
+.avatar{width:28px;height:28px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;font-size:.78rem;flex:0 0 28px;}
+.identity-btn .id-text{text-align:left;line-height:1.2;}
+.identity-btn .id-text .nm{font-weight:700;font-size:.82rem;color:var(--ink);}
+.identity-btn .id-text .rl{font-size:.68rem;color:var(--slate-500);}
+.dropdown{
+  position:absolute;right:0;top:calc(100% + 6px);background:#fff;border:1px solid var(--line);border-radius:10px;
+  box-shadow:var(--shadow-md);width:290px;padding:6px;z-index:40;
+}
+.dropdown .dd-title{font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:var(--slate-500);padding:8px 10px 4px;}
+.dropdown button.dd-item{
+  display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:none;border-radius:8px;
+  padding:8px 10px;
+}
+.dropdown button.dd-item:hover{background:var(--slate-100);}
+.dropdown button.dd-item.current{background:var(--brand-soft);}
+.dropdown .dd-item .nm{font-weight:700;font-size:.83rem;}
+.dropdown .dd-item .rl{font-size:.71rem;color:var(--slate-500);}
+.bell-btn{position:relative;background:none;border:1px solid var(--line);border-radius:10px;padding:7px 10px;font-size:1rem;color:var(--slate-700);}
+.bell-dot{position:absolute;top:-4px;right:-4px;background:var(--bad);color:#fff;border-radius:20px;font-size:.62rem;font-weight:700;padding:1px 5px;font-family:var(--font-mono);}
+.notif-dropdown{width:340px;max-height:400px;overflow-y:auto;}
+.notif-item{display:block;padding:9px 10px;border-radius:8px;font-size:.8rem;}
+.notif-item:hover{background:var(--slate-100);}
+.notif-item .msg{color:var(--ink);}
+.notif-item .meta{color:var(--slate-500);font-size:.68rem;margin-top:2px;}
+.notif-empty{padding:18px 10px;color:var(--slate-500);font-size:.82rem;text-align:center;}
+
+.content{flex:1;padding:22px 26px 60px;max-width:1180px;width:100%;margin:0 auto;}
+
+/* ---------- Cards / generic ---------- */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-sm);}
+.card-pad{padding:18px 20px;}
+.grid{display:grid;gap:16px;}
+.grid.cols-4{grid-template-columns:repeat(4,1fr);}
+.grid.cols-3{grid-template-columns:repeat(3,1fr);}
+.grid.cols-2{grid-template-columns:repeat(2,1fr);}
+@media (max-width:960px){.grid.cols-4{grid-template-columns:repeat(2,1fr);}.grid.cols-3{grid-template-columns:repeat(2,1fr);}.grid.cols-2{grid-template-columns:1fr;}}
+@media (max-width:640px){.grid.cols-4,.grid.cols-3{grid-template-columns:1fr;}}
+
+.metric{padding:16px 18px;}
+.metric .k{font-family:var(--font-mono);font-size:1.7rem;font-weight:600;color:var(--ink);}
+.metric .l{font-size:.74rem;color:var(--slate-500);text-transform:uppercase;letter-spacing:.04em;margin-top:2px;}
+
+.btn{
+  display:inline-flex;align-items:center;gap:6px;border-radius:8px;border:1px solid var(--line);background:#fff;
+  color:var(--ink);font-size:.83rem;font-weight:700;padding:8px 14px;transition:background .12s,border-color .12s;
+}
+.btn:hover{background:var(--slate-100);}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff;}
+.btn.primary:hover{background:var(--brand-ink);}
+.btn.danger{background:#fff;border-color:var(--bad);color:var(--bad);}
+.btn.danger:hover{background:var(--bad-soft);}
+.btn.ghost{background:none;border-color:transparent;}
+.btn.ghost:hover{background:var(--slate-100);}
+.btn.sm{padding:5px 10px;font-size:.76rem;}
+.btn[disabled]{opacity:.45;cursor:not-allowed;}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:.68rem;font-weight:700;letter-spacing:.02em;padding:3px 8px;border-radius:20px;}
+.badge.good{background:var(--good-soft);color:var(--good);}
+.badge.warn{background:var(--warn-soft);color:var(--warn);}
+.badge.bad{background:var(--bad-soft);color:var(--bad);}
+.badge.info{background:var(--info-soft);color:var(--info);}
+.badge.hv{background:var(--hv-soft);color:var(--hv);}
+.badge.neutral{background:var(--slate-100);color:var(--slate-700);}
+
+.tabbar{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:16px;flex-wrap:wrap;}
+.tabbar button{background:none;border:none;padding:9px 14px;font-size:.83rem;font-weight:700;color:var(--slate-500);border-bottom:2px solid transparent;margin-bottom:-1px;}
+.tabbar button.active{color:var(--brand-ink);border-bottom-color:var(--brand);}
+.tabbar button:hover{color:var(--ink);}
+
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:.78rem;font-weight:700;color:var(--slate-700);margin-bottom:4px;}
+.field .hint{font-size:.7rem;color:var(--slate-500);margin-top:3px;}
+.field input[type=text],.field input[type=number],.field input[type=date],.field select,.field textarea{
+  width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:.86rem;font-family:var(--font-body);background:#fff;color:var(--ink);
+}
+.field textarea{resize:vertical;min-height:64px;}
+.field input[readonly]{background:var(--slate-100);color:var(--slate-700);}
+.field input.invalid,.field select.invalid{border-color:var(--bad);box-shadow:0 0 0 1px var(--bad);}
+.err-text{color:var(--bad);font-size:.72rem;margin-top:4px;}
+.req-mark{color:var(--bad);margin-left:2px;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media (max-width:640px){.row2{grid-template-columns:1fr;}}
+.amt-row{display:grid;grid-template-columns:2fr 1fr;gap:10px;}
+
+.table-wrap{overflow-x:auto;}
+.reqid{font-family:var(--font-mono);font-weight:700;color:var(--ink);}
+.amount-cell{font-family:var(--font-mono);font-weight:700;}
+
+/* ---------- Route Stepper (signature element) ---------- */
+.stepper{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin:10px 0 4px;}
+.step{display:flex;align-items:center;}
+.step .node{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:76px;text-align:center;}
+.step .dot{width:26px;height:26px;border-radius:50%;background:var(--slate-100);border:2px solid var(--slate-300);display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;color:var(--slate-500);font-family:var(--font-mono);}
+.step .lbl{font-size:.63rem;font-weight:700;color:var(--slate-500);text-transform:uppercase;letter-spacing:.02em;}
+.step.done .dot{background:var(--brand);border-color:var(--brand);color:#fff;}
+.step.done .lbl{color:var(--brand-ink);}
+.step.current .dot{background:#fff;border-color:var(--brand);color:var(--brand-ink);box-shadow:0 0 0 4px var(--brand-soft);animation:pulse 1.8s ease-in-out infinite;}
+.step.current .lbl{color:var(--brand-ink);font-weight:700;}
+.step.skipped .dot{background:var(--slate-100);border-style:dashed;color:var(--slate-300);}
+.step.skipped .lbl{color:var(--slate-300);text-decoration:line-through;}
+.connector{width:26px;height:2px;background:var(--slate-300);margin:0 2px 22px;}
+.connector.filled{background:var(--brand);}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 4px var(--brand-soft);}50%{box-shadow:0 0 0 7px var(--brand-soft);}}
+
+/* ---------- Misc components ---------- */
+.notice{border-radius:8px;padding:10px 12px;font-size:.82rem;display:flex;gap:8px;align-items:flex-start;}
+.notice.info{background:var(--info-soft);color:var(--info);}
+.notice.warn{background:var(--warn-soft);color:var(--warn);}
+.notice.bad{background:var(--bad-soft);color:var(--bad);}
+.notice.good{background:var(--good-soft);color:var(--good);}
+.lockstrip{background:var(--slate-900);color:#fff;padding:9px 14px;border-radius:8px;font-size:.8rem;display:flex;align-items:center;gap:8px;font-weight:700;}
+
+.qa-card{padding:16px;display:flex;flex-direction:column;gap:8px;min-height:118px;}
+.qa-card .qa-ic{font-size:1.3rem;}
+.qa-card h3{margin:0;font-size:.92rem;}
+.qa-card p{font-size:.76rem;margin:0;flex:1;}
+.qa-card.placeholder{opacity:.72;}
+
+.hist-item{border-left:2px solid var(--line);padding:2px 0 14px 16px;position:relative;}
+.hist-item::before{content:'';position:absolute;left:-5px;top:4px;width:8px;height:8px;border-radius:50%;background:var(--brand);}
+.hist-item .top{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+.hist-item .actor{font-weight:700;font-size:.84rem;}
+.hist-item .action{font-size:.84rem;}
+.hist-item .ts{font-family:var(--font-mono);font-size:.68rem;color:var(--slate-500);}
+.hist-item .comment{font-size:.8rem;color:var(--slate-700);background:var(--slate-100);border-radius:7px;padding:7px 9px;margin-top:5px;}
+.hist-item .states{font-size:.68rem;color:var(--slate-500);margin-top:3px;font-family:var(--font-mono);}
+
+.modal-backdrop{position:fixed;inset:0;background:rgba(14,25,48,.5);display:flex;align-items:flex-start;justify-content:center;z-index:100;padding:40px 16px;overflow-y:auto;}
+.modal{background:#fff;border-radius:12px;max-width:640px;width:100%;box-shadow:var(--shadow-md);}
+.modal-head{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line);}
+.modal-body{padding:20px;max-height:70vh;overflow-y:auto;}
+.modal-foot{padding:14px 20px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px;}
+
+.toast-wrap{position:fixed;bottom:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:8px;}
+.toast{background:var(--slate-900);color:#fff;padding:11px 16px;border-radius:9px;font-size:.83rem;box-shadow:var(--shadow-md);max-width:340px;animation:slidein .2s ease-out;}
+.toast.good{background:var(--good);}
+.toast.bad{background:var(--bad);}
+@keyframes slidein{from{transform:translateY(8px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+
+.arch-diagram{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0;}
+@media (max-width:900px){.arch-diagram{grid-template-columns:1fr;}}
+.arch-box{border:1.5px solid var(--line);border-radius:10px;padding:12px;background:var(--panel);}
+.arch-box .lyr{font-size:.65rem;text-transform:uppercase;letter-spacing:.05em;color:var(--brand-ink);font-weight:700;margin-bottom:4px;}
+.arch-box h4{margin:0 0 6px;font-size:.85rem;}
+.arch-box p{font-size:.72rem;margin:0;color:var(--slate-500);}
+
+.dl{display:grid;grid-template-columns:170px 1fr;gap:6px 14px;font-size:.85rem;}
+.dl dt{color:var(--slate-500);font-weight:700;}
+.dl dd{margin:0;color:var(--ink);}
+
+.gap-sm{margin-top:8px;}
+.gap-md{margin-top:18px;}
+.gap-lg{margin-top:30px;}
+.muted{color:var(--slate-500);}
+.small{font-size:.78rem;}
+.center{text-align:center;}
+.flex-between{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+.storage-note{font-size:.66rem;color:var(--warn);margin-top:6px;}
+
+@media (max-width:900px){
+  .sidebar{position:fixed;left:-240px;z-index:60;transition:left .18s;box-shadow:var(--shadow-md);}
+  .sidebar.open{left:0;}
+  .hamburger{display:inline-flex;}
+  .content{padding:16px;}
+}
+@media (max-width:640px){
+  .topbar{padding:9px 14px;}
+  .demo-banner{padding:6px 14px;font-size:.68rem;}
+  .identity-btn .id-text{display:none;}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toast-wrap" id="toastWrap" aria-live="polite"></div>
+
+<script>
+"use strict";
+/* ================================================================
+   ORBIS WORKPLACE — Expense Reimbursement Workflow Demo
+   Standalone single-file simulation, bilingual (EN / 中文).
+   Persists to window.localStorage per the spec's Trade-off 3
+   (falls back to in-memory only if storage is unavailable).
+   ================================================================ */
+
+/* ---------------- i18n ---------------- */
+const I18N = {
+en:{
+  brand_name:'BV Workplace', brand_tag:'Digital Workplace Portal',
+  login_title:'Portal Sign In', login_subtitle:'Choose an identity to continue to BV Workplace.',
+  login_identity:'Identity', login_password:'Password', login_forgot:'Forgot password?',
+  login_submit:'Sign in', login_error:'Incorrect identity or password.',
+  login_hint:'Demo password: the identity\'s first name in lowercase (e.g. alex, jordan, morgan, riley, casey).',
+  login_none_active:'No active identities are available to sign in with. Ask an administrator to reactivate one in Administration → Approval Matrix.',
+  member_login:'Sign in', member_logout:'Sign out', member_signed_in_as:'Signed in as', member_myaccount:'My Account', member_switch_user:'Switch to another user',
+
+  ma_title:'Your info', ma_security:'Change password', ma_security_sub:'Security',
+  ma_back:'← Back',
+  ma_photo_desc:'Personalize your account with a photo. Your profile photo appears in apps and devices that use this Portal account.',
+  ma_add_photo:'Add photo',
+  ma_fullname:'Full name', ma_edit_name:'Edit name',
+  ma_profile_info:'Profile info', ma_edit_profile:'Edit profile info',
+  ma_birthday:'Birthday', ma_not_set:'Not set',
+  ma_country:'Country or region',
+  ma_language:'Language',
+  ma_regionformat:'Regional format',
+  ma_related:'Related', ma_billing:'Billing & shipping info',
+  ma_account_info:'Account info', ma_edit_account:'Edit account info',
+  ma_email:'Email address', ma_comm_pref:'Communication preferences',
+  ma_phone:'Phone number', ma_none:'None',
+  ma_link_signin:'Sign-in preferences', ma_link_linkphone:"Link your phone to your PC",
+  ma_link_secnotice:'Product security notices', ma_link_closeaccount:'Close account',
+  ma_demo_only:'This is a visual demo screen — the action is not wired up.',
+  nav_home:'Home', nav_expense:'Expense', nav_mywork:'My Work', nav_architecture:'Architecture', nav_admin:'Administration', nav_guide:'Demo Guide',
+  sidebar_foot:'Demo Environment · Synthetic Data Only',
+  demo_banner:'DEMO ENVIRONMENT — No production data. All identities and records are synthetic.',
+  storage_on:'Session saved to this browser (LocalStorage).', storage_off:'LocalStorage unavailable here — running in-memory only for this session.',
+  signed_in_as:'Signed in as',
+  notif_title:'Notifications', notif_empty:'No notifications yet.',
+  role_Requester:'Requester', role_Manager:'Manager', role_GM:'General Manager', role_Finance:'Finance Reviewer', role_Cashier:'Cashier',
+  status_PendingManager:'Pending Manager', status_PendingGM:'Pending GM', status_PendingFinance:'Pending Finance', status_PendingPayment:'Pending Payment', status_Returned:'Returned', status_Rejected:'Rejected', status_Paid:'Paid / Closed', status_Draft:'Draft',
+  level1:'Level 1', level2:'Level 2', level3:'Level 3',
+  hv_badge:'High-Value',
+
+  home_greet_morning:'Good morning', home_greet_afternoon:'Good afternoon', home_greet_evening:'Good evening',
+  home_signed_as:'Signed in as',
+  home_emp_search_title:'Employee search', home_emp_search_ph:'Search directory by name or role…', home_emp_search_none:'No matching employees.',
+  home_summary_title:'Quick summary', home_summary_pending:'Your pending queue', home_summary_pending_val:'item(s) require your action',
+  home_summary_unread:'Unread notifications', home_summary_open:'Open expense requests', home_summary_open_val:'in flight',
+  home_gotowork:'Go to My Work', home_gotoexpense:'Open Expense Workspace',
+  home_quick_actions:'Quick actions',
+  qa_expense_t:'Expense', qa_expense_d:'Submit and track expense reimbursements.',
+  qa_purchase_t:'Purchase', qa_purchase_d:'Request goods and services procurement.',
+  qa_leave_t:'Leave', qa_leave_d:'Request and track time off.',
+  qa_qms_t:'QMS', qa_qms_d:'Quality management system records.',
+  qa_ithelp_t:'IT Helpdesk', qa_ithelp_d:'Log and track IT support tickets.',
+  qa_ai_t:'Ask BV AI', qa_ai_d:'Internal AI assistant for policies & tasks.',
+  qa_available:'Available', qa_comingsoon:'Coming soon',
+  home_news_title:'Company news & notices',
+  home_news_1:'<strong>Q2 Travel & Expense reminders.</strong> All receipts must be attached before submission; missing-receipt requests are automatically returned by approvers.',
+  home_news_2:'<strong>New Digital Workplace rollout.</strong> Purchase, Leave, QMS and IT Helpdesk modules are in pilot and will onboard to this Portal next quarter.',
+  home_news_3:'<strong>Finance close calendar.</strong> Month-end payment runs occur every last business day; submit early to avoid delay.',
+  home_policy_title:'Policies & SOP', home_policy_badge:'Current published only',
+  home_policy_1:'Expense Reimbursement Policy', home_policy_1v:'v3.2 · Published',
+  home_policy_2:'Travel & Entertainment SOP', home_policy_2v:'v1.6 · Published',
+  home_policy_3:'Delegation of Authority Matrix', home_policy_3v:'v2.0 · Published',
+  home_policy_note:'Draft and superseded versions are intentionally hidden from this workspace view.',
+
+  expense_title:'Expense Workspace',
+  expense_sub:'Level 1 ≤ NT${l1} · Level 2 up to NT${l2} · Level 3 above',
+  expense_scope_note:'Showing only requests whose approval route includes {role} — a role skipped by a route (e.g. GM on a Level 1 request) never sees it here.',
+  m_all:'All requests', m_inapproval:'In approval', m_returned:'Returned', m_paid:'Paid',
+  f_all:'All', f_inapproval:'In Approval', f_returned:'Returned', f_paid:'Paid',
+  search_ph:'Search ID, purpose, payee…',
+  btn_reset:'↺ Reset Cases', btn_newexpense:'+ New Expense',
+  th_id:'Request ID', th_purpose:'Purpose', th_amount:'Amount', th_route:'Route Level', th_stage:'Current Stage', th_status:'Status', th_action:'Action',
+  btn_open:'Open', no_match:'No requests match this filter.',
+  closed:'Closed', returned_to_requester:'Returned to Requester',
+
+  ne_title:'New Expense Request',
+  ne_title_edit:'Edit Draft Request',
+  ne_title_resubmit:'Edit Expense Request',
+  ne_current_file:'Current file: {name} (choosing a new file will replace it).',
+  ne_switch_notice:'Current identity ({name}, {role}) is not a Requester. Switch identity to Alex Chen (Requester) to submit on their behalf.',
+  ne_requester:'Requester', ne_department:'Department', ne_date:'Expense date', ne_type:'Expense type',
+  ne_amount:'Amount / Currency', ne_amount_ph:'e.g. 3000',
+  ne_purpose:'Business purpose', ne_purpose_ph:'Describe the business purpose of this expense',
+  ne_cc:'Project / cost center', ne_cc_ph:'e.g. CC-ENG-104', ne_payee:'Payee',
+  ne_attach:'Receipt / attachment', ne_attach_ok:'Attach simulated receipt file', ne_attach_missing:'No receipt available (explain in purpose)',
+  ne_attach_hint:'Missing-receipt requests can still be submitted, but approvers may return them for evidence.',
+  ne_route_title:'Auto Routing Result (Level {level}{hv})',
+  ne_route_body:'This route is computed automatically from the current Workflow Configuration — Requesters cannot choose or skip approvers.',
+  ne_amount_error:'Please enter a number greater than zero.',
+  ne_fx_note:'≈ NT${twd} at demo FX rate {rate} (static rate for this Demo, not a live feed).',
+  ne_file_label:'Upload receipt file', ne_file_hint:'Accepted formats: PDF, JPEG, PNG, DOCX.',
+  ne_file_required:'Please choose a receipt file to upload.',
+  ne_readonly_notice:'Only a Requester identity can create a new expense request. Switch identity to Alex Chen to enable this form.',
+  ne_savedraft:'Save as draft',
+  toast_draft_saved:'Request {id} saved as a draft.',
+  toast_file_required:'Please choose a receipt file to upload.',
+  ne_cancel:'Cancel', ne_submit:'Submit request',
+  toast_fillall:'Please complete all required fields.',
+  toast_submitted:'Request {id} submitted — routed to {stage}.',
+
+  mywork_title:'My Work', mywork_sub:'Role-aware queues — only actions authorized for the current identity are shown.',
+  mywork_identities:'Demo identities', mywork_pending:'pending', mywork_clear:'Clear',
+  mywork_current:'Currently active', mywork_switch_via_menu:'Use the account menu (top-right avatar) to switch identity.',
+  mywork_queue_for:'Your queue —',
+  mywork_no_returned:'No returned requests need your attention.',
+  mywork_returned_from:'Returned from {stage} stage. Reason:',
+  mywork_view:'View details', mywork_fixresubmit:'Fix & Resubmit',
+  mywork_queue_clear:'Queue is clear — no requests are waiting at your stage.',
+  th_view:'View',
+  act_approve:'Approve', act_reject:'Reject', act_return:'Return', act_pay:'Record payment',
+
+  am_title_approve:'Approve request', am_title_reject:'Reject request', am_title_return:'Return for correction', am_title_pay:'Record payment', am_title_resubmit:'Fix & resubmit request',
+  am_comment_req:'Comment (required)', am_comment_opt:'Comment (optional)',
+  am_comment_ph_approve:'Add a note for the record…', am_comment_ph_reject:'Explain the reason — the requester will see this.',
+  am_amount_readonly:'Approved amount {amt} (read-only, cannot be modified by Cashier).',
+  am_payref:'Payment reference', am_paydate:'Payment date',
+  am_return_target:'Return to', am_return_target_hint:'Choose who should receive this request back — the Requester for correction, or an earlier approver for re-review.',
+  am_returned_from:'{id} — returned from {stage}. Reason:',
+  am_fix_attach:'Attach missing receipt',
+  am_resubmit_note:'Resubmission note', am_resubmit_ph:'Explain what was corrected…', am_resubmit_default:'Evidence attached; corrected as requested.',
+  am_cancel:'Cancel', am_confirm:'Confirm',
+  toast_authfail:'Action not authorized for the current identity / request state.',
+  toast_commentreq:'A comment is required for this action.',
+  toast_payreq:'Payment reference and date are required.',
+  toast_approved:'approved', toast_rejected:'rejected', toast_returnedv:'returned',
+  toast_paidclosed:'{id} marked Paid / Closed.',
+  toast_resubmitted:'{id} resubmitted to {stage}.',
+
+  detail_back:'← Back to Expense Workspace', detail_notfound:'Request not found.',
+  detail_locked:'Paid & Closed — this record is locked. Corrections require a new compensating record, not an edit to history.',
+  detail_exception:'Workflow exception detected (Correlation ID: {cor}). Actions are blocked until an operator retries this request from Administration → Exception Handling.',
+  detail_route:'Approval route', detail_returned_note:'Returned from {stage} — awaiting requester correction.',
+  detail_fields:'Request details',
+  f_requester:'Requester', f_department:'Department', f_date:'Expense date', f_type:'Expense type', f_amount:'Amount',
+  f_cc:'Project / Cost center', f_payee:'Payee', f_attachment:'Attachment', f_missing:'Missing receipt',
+  f_routelevel:'Route level', f_currentrole:'Current role', f_paymentref:'Payment reference', f_status:'Status',
+  detail_noactions:'No actions available for the current identity.',
+  detail_audit:'Audit history (append-only)', detail_export:'Export',
+  detail_draft_note:'This request is a draft and has not entered the approval workflow yet. Only you (the requester) can see it.',
+  detail_draft_noroute:'Route not yet computed — the route is calculated when this draft is submitted for approval.',
+  act_submitdraft:'Submit for approval',
+  act_editdraft:'Edit',
+
+  arch_title:'Architecture & Production Design',
+  arch_tab_components:'Component Diagram', arch_tab_data:'Data Model', arch_tab_states:'State Machine', arch_tab_permissions:'Permissions',
+  arch_tab_exceptions:'Exceptions', arch_tab_ops:'Deployment & Ops', arch_tab_tradeoffs:'Trade-offs', arch_tab_gaps:'Demo vs. Production',
+
+  admin_title:'Administration',
+  admin_tab_routing:'Routing Configuration', admin_tab_matrix:'Approval Matrix', admin_tab_health:'Workflow Health', admin_tab_exceptions:'Exception Handling', admin_tab_events:'System Events',
+  admin_routing_h:'Routing configuration',
+  admin_routing_p:'Central thresholds drive routing for every future submission. Changing a threshold does not require touching any workflow logic and never re-routes an in-flight request (its Route_Level was stamped at submission time).',
+  admin_lvl1:'Level 1 maximum (NT$)', admin_lvl2:'Level 2 maximum (NT$)',
+  admin_default_hint:'Default values: NT$5,000 / NT$20,000. Level 3 = above Level 2 maximum, auto-flagged High-Value.',
+  admin_save:'Save configuration',
+  admin_matrix_h:'Approval matrix', admin_matrix_p:'Named-user to role mapping, backed in production by Entra ID group membership. Deactivating the only active holder of a role leaves that stage without an approver until a replacement is activated or added.',
+  th_role:'Role', th_nameduser:'User Name', th_entragroup:'Entra group (simulated)', th_active:'Active',
+  admin_add_role:'+ Add New Role',
+  admin_matrix_placeholder:'Enter a name…',
+  admin_active:'Active', admin_inactive:'Inactive',
+  toast_user_deactivated:'{name} was deactivated and removed from the identity switcher. Switched active identity to {fallback}.',
+  toast_user_activated:'{name} was activated and is now available in the identity switcher.',
+  admin_health_h:'Workflow health indicators',
+  m_open:'Open requests', m_awaiting_approval:'Awaiting approval', m_awaiting_payment:'Awaiting payment', m_active_exceptions:'Active exceptions',
+  admin_flowowner:'Flow owner', admin_ownership:'Operational ownership', admin_ownership_v:'Finance owns business rules & thresholds; IT Operations owns flow health, connectors and incident response.',
+  admin_exc_h:'Handled-exception simulation',
+  admin_exc_p:'Simulates a transient flow failure (e.g. connector timeout) on an in-flight request: records an Exception Record, alerts the Flow Owner, retains the last valid state, and supports a safe (idempotent) retry.',
+  admin_exc_none:'No eligible request', admin_exc_simulate:'Simulate flow failure',
+  admin_exc_active:'Active exceptions', admin_exc_noactive:'No active exceptions.',
+  admin_exc_lastvalid:'Last valid state: {state} · Occurred {time}', admin_exc_retry:'Retry (idempotent)',
+  admin_events_h:'Recent system events', admin_events_export:'Export full audit log',
+  th_time:'Time', th_actor:'Actor', th_type:'Type', th_message:'Message', admin_events_none:'No events yet.',
+
+  guide_title:'Demo Guide', guide_sub:'Suggested 40-minute walkthrough and the four required acceptance cases.',
+  guide_runofshow:'Suggested run of show',
+  guide_step1:'Scenario', guide_step1d:'Business problem, intended users, completed scope, navigation.',
+  guide_step2:'Architecture', guide_step2d:'Components, controlled lists, state machine, permissions, Demo/Production boundary.',
+  guide_step3:'Cases A–D', guide_step3d:'Real state changes, account switching, auto routing, reject/resubmit, high-value control, payment, audit.',
+  guide_step4:'Administration', guide_step4d:'Threshold configuration, approval matrix, audit export, workflow health, handled exception.',
+  guide_step5:'Trade-offs & Q&A', guide_step5d:'Security, reliability, maintainability, rollout plan, known gaps.',
+  guide_cases_title:'Required acceptance cases',
+  guide_caseA_t:'Standard approval, GM skipped', guide_caseA_proof:'Manager approves and the request routes directly to Finance — GM never sees a task. Finance approves, Cashier pays. Final state: Paid / Closed.',
+  guide_caseB_t:'Full route with four distinct actors', guide_caseB_proof:'Manager, GM, Finance and Cashier each act from their own named identity; every actor appears in Approval History.',
+  guide_caseC_t:'High-value enforcement', guide_caseC_proof:'Level 3 / High-Value is auto-flagged; the full route is enforced; Cashier cannot edit the approved amount; the record locks after payment.',
+  guide_caseD_t:'Missing receipt → reject → resubmit', guide_caseD_proof:'Manager rejects citing the missing receipt; Requester attaches evidence and resubmits; the original rejection stays in history; the flow resumes at Manager, not from scratch.',
+  guide_open:'Open', guide_restore:'Run Reset Cases to restore.', guide_startasreq:'Log in as Requester',
+  guide_identities:'Demo identities', guide_switch:'Log in as this identity',
+  guide_switch_hint:'Both these buttons and the account menu\'s "Switch to another user" (top-right) route through the sign-in screen — pick the identity from the list and log in with its demo password to change who you are acting as.',
+
+  toast_switched:'Switched identity to {name}.',
+  toast_reset:'Demo reset. Cases A–D restored.',
+  toast_exported_one:'Exported audit history for {id}.',
+  toast_exported_all:'Exported full audit log.',
+  toast_config_saved:'Routing configuration saved.',
+  toast_config_invalid:'Level 2 maximum must be greater than Level 1 maximum.',
+  toast_exception_sim:'Exception simulated on {id}.',
+  toast_exception_recovered:'{id} recovered — retry completed with no duplication.',
+},
+zh:{
+  brand_name:'BV Workplace', brand_tag:'數位辦公室入口',
+  login_title:'系統登入', login_subtitle:'請選擇身分以繼續使用 BV Workplace。',
+  login_identity:'身分', login_password:'密碼', login_forgot:'忘記密碼？',
+  login_submit:'登入', login_error:'身分或密碼錯誤。',
+  login_hint:'展示用密碼：該身分的名字小寫（例如 alex、jordan、morgan、riley、casey）。',
+  login_none_active:'目前沒有可登入的啟用中身分，請聯繫管理員於「系統管理 → 簽核權限」重新啟用。',
+  member_login:'登入', member_logout:'登出', member_signed_in_as:'目前登入會員', member_myaccount:'我的帳戶', member_switch_user:'切換至其他使用者',
+
+  ma_title:'您的資訊', ma_security:'變更密碼', ma_security_sub:'安全性',
+  ma_back:'← 返回',
+  ma_photo_desc:'使用相片個人化您的帳戶。您的設定檔相片會出現在使用此 Portal 帳戶的應用程式和裝置上。',
+  ma_add_photo:'新增相片',
+  ma_fullname:'全名', ma_edit_name:'編輯名稱',
+  ma_profile_info:'設定檔資訊', ma_edit_profile:'編輯設定檔資訊',
+  ma_birthday:'生日', ma_not_set:'未設定',
+  ma_country:'國家或地區',
+  ma_language:'語言',
+  ma_regionformat:'地區格式',
+  ma_related:'相關', ma_billing:'帳單與出貨資訊',
+  ma_account_info:'帳戶資訊', ma_edit_account:'編輯帳戶資訊',
+  ma_email:'電子郵件地址', ma_comm_pref:'通訊喜好設定',
+  ma_phone:'電話號碼', ma_none:'無',
+  ma_link_signin:'登入喜好設定', ma_link_linkphone:'將您的手機連結到電腦',
+  ma_link_secnotice:'產品安全性通知', ma_link_closeaccount:'關閉帳戶',
+  ma_demo_only:'此為展示畫面，本操作尚未串接實際功能。',
+  nav_home:'首頁', nav_expense:'費用報銷', nav_mywork:'我的工作', nav_architecture:'系統架構', nav_admin:'系統管理', nav_guide:'展示指南',
+  sidebar_foot:'展示環境 · 僅供合成測試資料使用',
+  demo_banner:'展示環境 — 無正式生產資料。所有身分與單據皆為合成測試資料。',
+  storage_on:'工作階段已儲存於本機瀏覽器（LocalStorage）。', storage_off:'此環境無法使用 LocalStorage — 本次工作階段僅保存於記憶體中。',
+  signed_in_as:'目前登入身分',
+  notif_title:'通知', notif_empty:'目前尚無通知。',
+  role_Requester:'申請人', role_Manager:'部門經理', role_GM:'總經理', role_Finance:'財務審核員', role_Cashier:'出納',
+  status_PendingManager:'待經理審核', status_PendingGM:'待總經理審核', status_PendingFinance:'待財務審核', status_PendingPayment:'待付款', status_Returned:'已退回', status_Rejected:'已拒絕', status_Paid:'已付款結案', status_Draft:'草稿',
+  level1:'Level 1', level2:'Level 2', level3:'Level 3',
+  hv_badge:'高額標示',
+
+  home_greet_morning:'早安', home_greet_afternoon:'午安', home_greet_evening:'晚安',
+  home_signed_as:'目前登入身分',
+  home_emp_search_title:'員工查詢', home_emp_search_ph:'依姓名或角色搜尋通訊錄…', home_emp_search_none:'查無符合的員工。',
+  home_summary_title:'快速摘要', home_summary_pending:'待處理佇列', home_summary_pending_val:'筆需要您處理',
+  home_summary_unread:'未讀通知', home_summary_open:'進行中的報銷單', home_summary_open_val:'筆處理中',
+  home_gotowork:'前往我的工作', home_gotoexpense:'開啟費用報銷工作區',
+  home_quick_actions:'快速功能',
+  qa_expense_t:'費用報銷', qa_expense_d:'提交並追蹤費用報銷申請。',
+  qa_purchase_t:'採購申請', qa_purchase_d:'申請商品與服務採購。',
+  qa_leave_t:'請假申請', qa_leave_d:'申請並追蹤休假紀錄。',
+  qa_qms_t:'品質管理系統', qa_qms_d:'品質管理系統紀錄。',
+  qa_ithelp_t:'IT 服務台', qa_ithelp_d:'建立並追蹤 IT 支援工單。',
+  qa_ai_t:'詢問 BV AI', qa_ai_d:'內部 AI 助理，協助政策查詢與任務處理。',
+  qa_available:'可使用', qa_comingsoon:'即將推出',
+  home_news_title:'公司公告與消息',
+  home_news_1:'<strong>Q2 差旅與報銷提醒。</strong>提交前必須附上所有收據；缺少收據的申請將由審核人自動退回。',
+  home_news_2:'<strong>新版數位辦公室上線。</strong>採購、請假、QMS 與 IT 服務台模組正在試營運，將於下季正式併入本入口網站。',
+  home_news_3:'<strong>財務結帳行事曆。</strong>月結付款作業於每月最後一個工作日執行，請提早提交以免延誤。',
+  home_policy_title:'政策與 SOP', home_policy_badge:'僅顯示目前生效版本',
+  home_policy_1:'費用報銷政策', home_policy_1v:'v3.2 · 已發佈',
+  home_policy_2:'差旅與交際 SOP', home_policy_2v:'v1.6 · 已發佈',
+  home_policy_3:'職權授權矩陣', home_policy_3v:'v2.0 · 已發佈',
+  home_policy_note:'草稿與已被取代的舊版本，於此工作區刻意不予顯示。',
+
+  expense_title:'費用報銷工作區',
+  expense_sub:'Level 1 ≤ NT${l1}．Level 2 至 NT${l2}．Level 3 以上',
+  expense_scope_note:'僅顯示簽核路由中包含「{role}」角色的單據 — 若某路由未經過此角色（例如 Level 1 單據不需要總經理），該角色將不會在此看到該筆單據。',
+  m_all:'全部單據', m_inapproval:'審核中', m_returned:'已退回', m_paid:'已付款',
+  f_all:'全部', f_inapproval:'審核中', f_returned:'已退回', f_paid:'已付款',
+  search_ph:'搜尋單號、事由、受款人…',
+  btn_reset:'↺ 重置展示案例', btn_newexpense:'＋ 新增報銷',
+  th_id:'單據編號', th_purpose:'事由', th_amount:'金額', th_route:'路由層級', th_stage:'目前階段', th_status:'狀態', th_action:'操作',
+  btn_open:'開啟', no_match:'沒有符合此篩選條件的單據。',
+  closed:'已結案', returned_to_requester:'已退回申請人',
+
+  ne_title:'新增報銷申請',
+  ne_title_edit:'編輯草稿',
+  ne_title_resubmit:'編輯報銷申請',
+  ne_current_file:'目前檔案：{name}（重新選擇檔案將會取代原檔案）。',
+  ne_switch_notice:'目前身分（{name}，{role}）並非申請人角色。請切換為 Alex Chen（申請人）以代為提交。',
+  ne_requester:'申請人', ne_department:'部門', ne_date:'費用發生日期', ne_type:'費用類型',
+  ne_amount:'金額／幣別', ne_amount_ph:'例如 3000',
+  ne_purpose:'業務事由', ne_purpose_ph:'請描述此筆費用的業務目的',
+  ne_cc:'專案／成本中心', ne_cc_ph:'例如 CC-ENG-104', ne_payee:'受款人',
+  ne_attach:'收據／附件', ne_attach_ok:'附上模擬收據檔案', ne_attach_missing:'目前無收據（請於事由中說明）',
+  ne_attach_hint:'缺少收據的申請仍可提交，但審核人可能會要求補件而退回。',
+  ne_route_title:'自動路由結果（Level {level}{hv}）',
+  ne_route_body:'此路由係依目前的 Workflow Configuration 自動計算 — 申請人不得自行選擇或跳過審批人。',
+  ne_amount_error:'請填入大於零的數字。',
+  ne_fx_note:'≈ NT${twd}（展示用固定匯率 {rate}，非即時匯率）',
+  ne_file_label:'上傳收據檔案', ne_file_hint:'可接受格式：PDF、JPEG、PNG、DOCX。',
+  ne_file_required:'請選擇要上傳的收據檔案。',
+  ne_readonly_notice:'僅申請人身分可建立新的報銷申請。請切換身分為 Alex Chen 以啟用此表單。',
+  ne_savedraft:'存為草稿',
+  toast_draft_saved:'單據 {id} 已存為草稿。',
+  toast_file_required:'請選擇要上傳的收據檔案。',
+  ne_cancel:'取消', ne_submit:'送出申請',
+  toast_fillall:'請完整填寫所有必填欄位。',
+  toast_submitted:'單據 {id} 已送出 — 已路由至 {stage}。',
+
+  mywork_title:'我的工作', mywork_sub:'角色感知佇列 — 僅顯示目前身分被授權的操作。',
+  mywork_identities:'展示身分', mywork_pending:'待處理', mywork_clear:'已清空',
+  mywork_current:'目前使用中', mywork_switch_via_menu:'請使用右上角頭像選單來切換身分。',
+  mywork_queue_for:'目前佇列 —',
+  mywork_no_returned:'目前沒有需要處理的退回單據。',
+  mywork_returned_from:'由 {stage} 階段退回。原因：',
+  mywork_view:'查看詳情', mywork_fixresubmit:'補件並重新送出',
+  mywork_queue_clear:'佇列已清空 — 目前沒有等待您處理的單據。',
+  th_view:'查看',
+  act_approve:'核准', act_reject:'拒絕', act_return:'退回', act_pay:'登錄付款',
+
+  am_title_approve:'核准申請', am_title_reject:'拒絕申請', am_title_return:'退回補正', am_title_pay:'登錄付款', am_title_resubmit:'補件並重新送出',
+  am_comment_req:'意見（必填）', am_comment_opt:'意見（選填）',
+  am_comment_ph_approve:'留下審核備註…', am_comment_ph_reject:'請說明原因 — 申請人將會看到此訊息。',
+  am_amount_readonly:'已核准金額 {amt}（唯讀，出納不得修改）。',
+  am_payref:'付款參考碼', am_paydate:'付款日期',
+  am_return_target:'退回給', am_return_target_hint:'選擇要退回給誰 — 退回申請人以進行補正，或退回給先前的審核人重新審核。',
+  am_returned_from:'{id} — 由 {stage} 退回。原因：',
+  am_fix_attach:'補上缺少的收據',
+  am_resubmit_note:'重新送出說明', am_resubmit_ph:'請說明已補正的內容…', am_resubmit_default:'已附上證明文件；已依要求補正。',
+  am_cancel:'取消', am_confirm:'確認',
+  toast_authfail:'目前身分／單據狀態無權執行此操作。',
+  toast_commentreq:'此操作需要填寫意見。',
+  toast_payreq:'付款參考碼與付款日期為必填。',
+  toast_approved:'已核准', toast_rejected:'已拒絕', toast_returnedv:'已退回',
+  toast_paidclosed:'{id} 已標記為已付款結案。',
+  toast_resubmitted:'{id} 已重新送出至 {stage}。',
+
+  detail_back:'← 返回費用報銷工作區', detail_notfound:'找不到此單據。',
+  detail_locked:'已付款結案 — 此紀錄已鎖定。如需更正，須新增補償性紀錄，不得修改歷史紀錄。',
+  detail_exception:'偵測到流程例外（Correlation ID：{cor}）。在管理員於「系統管理 → 例外處理」重試前，所有操作皆被阻擋。',
+  detail_route:'簽核路由', detail_returned_note:'由 {stage} 階段退回 — 等待申請人補正。',
+  detail_fields:'單據明細',
+  f_requester:'申請人', f_department:'部門', f_date:'費用發生日期', f_type:'費用類型', f_amount:'金額',
+  f_cc:'專案／成本中心', f_payee:'受款人', f_attachment:'附件', f_missing:'缺少收據',
+  f_routelevel:'路由層級', f_currentrole:'目前角色', f_paymentref:'付款參考碼', f_status:'狀態',
+  detail_noactions:'目前身分無可執行的操作。',
+  detail_audit:'稽核歷程（僅可新增，不可覆寫）', detail_export:'匯出',
+  detail_draft_note:'此單據為草稿，尚未進入簽核流程，僅申請人本人可見。',
+  detail_draft_noroute:'尚未計算路由 — 送出審核時才會計算路由。',
+  act_submitdraft:'送出審核',
+  act_editdraft:'編輯',
+
+  arch_title:'系統架構與正式環境設計',
+  arch_tab_components:'架構元件圖', arch_tab_data:'資料模型', arch_tab_states:'狀態機', arch_tab_permissions:'權限模型',
+  arch_tab_exceptions:'例外處理', arch_tab_ops:'部署與維運', arch_tab_tradeoffs:'架構取捨', arch_tab_gaps:'展示範圍 vs. 正式環境',
+
+  admin_title:'系統管理',
+  admin_tab_routing:'路由設定', admin_tab_matrix:'簽核權限', admin_tab_health:'流程健康指標', admin_tab_exceptions:'例外處理', admin_tab_events:'系統事件紀錄',
+  admin_routing_h:'路由設定',
+  admin_routing_p:'集中式門檻值驅動未來所有新申請的路由計算。調整門檻無需異動任何流程邏輯，且不會讓進行中的單據重新路由（其 Route_Level 已於提交當下鎖定）。',
+  admin_lvl1:'Level 1 上限（NT$）', admin_lvl2:'Level 2 上限（NT$）',
+  admin_default_hint:'預設值：NT$5,000／NT$20,000。超過 Level 2 上限即為 Level 3，並自動標示為高額 (High-Value)。',
+  admin_save:'儲存設定',
+  admin_matrix_h:'簽核權限', admin_matrix_p:'具名使用者與角色的對應關係，正式環境中由 Entra ID 群組成員資格支撐。若停用某角色目前唯一啟用中的成員，該階段將暫時沒有可審核的人，直到重新啟用或新增其他成員。',
+  th_role:'Role', th_nameduser:'User Name', th_entragroup:'Entra 群組（模擬）', th_active:'啟用',
+  admin_add_role:'＋ 新增角色',
+  admin_matrix_placeholder:'請輸入姓名…',
+  admin_active:'啟用中', admin_inactive:'已停用',
+  toast_user_deactivated:'已停用 {name}，並自動從身分切換清單移除，目前身分已切換為 {fallback}。',
+  toast_user_activated:'已啟用 {name}，現在可於身分切換清單中選擇。',
+  admin_health_h:'流程健康指標',
+  m_open:'進行中單據', m_awaiting_approval:'待審核', m_awaiting_payment:'待付款', m_active_exceptions:'進行中的例外',
+  admin_flowowner:'流程負責人', admin_ownership:'維運責任分工', admin_ownership_v:'財務部負責業務規則與門檻值；IT 維運團隊負責流程健康、連線器與事件應變。',
+  admin_exc_h:'例外情境模擬',
+  admin_exc_p:'模擬進行中單據發生暫時性流程失敗（例如連線逾時）：記錄 Exception Record、通知流程負責人、保留最後有效狀態，並支援安全（冪等）重試。',
+  admin_exc_none:'目前無符合條件的單據', admin_exc_simulate:'模擬流程失敗',
+  admin_exc_active:'進行中的例外', admin_exc_noactive:'目前沒有進行中的例外。',
+  admin_exc_lastvalid:'最後有效狀態：{state}．發生於 {time}', admin_exc_retry:'重試（冪等）',
+  admin_events_h:'近期系統事件', admin_events_export:'匯出完整稽核紀錄',
+  th_time:'時間', th_actor:'操作者', th_type:'類型', th_message:'訊息', admin_events_none:'目前尚無事件紀錄。',
+
+  guide_title:'展示指南', guide_sub:'建議的 40 分鐘展示流程，以及四個必要驗收案例。',
+  guide_runofshow:'建議展示流程',
+  guide_step1:'情境說明', guide_step1d:'業務問題、目標使用者、已完成範圍與導覽方式。',
+  guide_step2:'系統架構', guide_step2d:'元件、四張受控清單、狀態機、權限模型、展示與正式環境的界線。',
+  guide_step3:'案例 A–D', guide_step3d:'真實狀態變化、帳號切換、自動路由、拒絕／重新送出、高額控管、付款與稽核。',
+  guide_step4:'系統管理', guide_step4d:'門檻設定、簽核矩陣、稽核匯出、流程健康、已處理例外。',
+  guide_step5:'架構取捨與問答', guide_step5d:'資安、可靠性、可維護性、上線計畫與已知落差。',
+  guide_cases_title:'必要驗收案例',
+  guide_caseA_t:'標準核准，自動略過總經理', guide_caseA_proof:'經理核准後直接進入財務審核 — 總經理不會收到任何任務。財務核准、出納完成付款，最終狀態為已付款結案。',
+  guide_caseB_t:'完整路由，四位不同操作者', guide_caseB_proof:'經理、總經理、財務、出納各自以獨立具名身分操作；每一位操作者皆出現在 Approval History 中。',
+  guide_caseC_t:'高額強制控管', guide_caseC_proof:'Level 3／高額自動標示；完整路由被強制執行；出納不得修改已核准金額；付款後紀錄鎖定。',
+  guide_caseD_t:'缺收據 → 拒絕 → 重新送出', guide_caseD_proof:'經理以缺少收據為由拒絕；申請人補上證明並重新送出；原始拒絕紀錄保留不被覆寫；流程由正確階段繼續。',
+  guide_open:'開啟', guide_restore:'請執行「重置展示案例」以還原。', guide_startasreq:'以申請人身分登入',
+  guide_identities:'展示身分', guide_switch:'登入為此身分',
+  guide_switch_hint:'上方按鈕與帳號選單中的「切換至其他使用者」（右上角）皆會導向登入畫面 — 從清單中選擇身分並輸入其展示用密碼即可切換目前扮演的角色。',
+
+  toast_switched:'已切換身分為 {name}。',
+  toast_reset:'展示環境已重置，案例 A–D 已還原。',
+  toast_exported_one:'已匯出 {id} 的稽核歷程。',
+  toast_exported_all:'已匯出完整稽核紀錄。',
+  toast_config_saved:'路由設定已儲存。',
+  toast_config_invalid:'Level 2 上限必須大於 Level 1 上限。',
+  toast_exception_sim:'已於 {id} 模擬例外情境。',
+  toast_exception_recovered:'{id} 已復原 — 重試完成且未產生重複操作。',
+}
+};
+function t(key, vars){
+  const dict = I18N[state.lang] || I18N.en;
+  let str = dict[key] !== undefined ? dict[key] : (I18N.en[key] !== undefined ? I18N.en[key] : key);
+  if (vars){ Object.keys(vars).forEach(k=>{ str = str.split('{'+k+'}').join(vars[k]); }); }
+  return str;
+}
+
+/* ---------------- Seed reference data ---------------- */
+const COMPANY = {en:'BV Group', zh:'BV集團'};
+
+function defaultUsers(){
+  return [
+    {id:'u1', name:'Alex Chen',      role:'Requester', title_en:'Software Engineer II',   title_zh:'軟體工程師 II',   dept_en:'Engineering',        dept_zh:'工程部',     group:'GRP-All-Employees', active:true},
+    {id:'u2', name:'Jordan Lee',     role:'Manager',   title_en:'Engineering Manager',     title_zh:'工程部經理',      dept_en:'Engineering',        dept_zh:'工程部',     group:'GRP-Managers-Eng', active:true},
+    {id:'u3', name:'Morgan Patel',   role:'GM',        title_en:'General Manager',         title_zh:'總經理',         dept_en:'Executive Office',   dept_zh:'執行辦公室', group:'GRP-General-Managers', active:true},
+    {id:'u4', name:'Riley Nakamura', role:'Finance',   title_en:'Finance Reviewer',        title_zh:'財務審核員',      dept_en:'Finance',            dept_zh:'財務部',     group:'GRP-Finance-Reviewers', active:true},
+    {id:'u5', name:'Casey Romero',   role:'Cashier',   title_en:'Cashier',                 title_zh:'出納',           dept_en:'Finance Operations', dept_zh:'財務作業組', group:'GRP-Cashiers', active:true},
+  ];
+}
+let USERS = defaultUsers();
+const userById = id => USERS.find(u=>u.id===id);
+function userTitle(u){ return state.lang==='zh' ? (u.title_zh||u.title_en||'') : (u.title_en||u.title_zh||''); }
+function userDept(u){ return state.lang==='zh' ? (u.dept_zh||u.dept_en||'') : (u.dept_en||u.dept_zh||''); }
+function roleLabel(role){ return t('role_'+role); }
+function activeUsers(){ return USERS.filter(u=>u.active!==false); }
+function entraGroupForRole(role){
+  return {Requester:'GRP-All-Employees', Manager:'GRP-Managers-Eng', GM:'GRP-General-Managers', Finance:'GRP-Finance-Reviewers', Cashier:'GRP-Cashiers'}[role] || 'GRP-All-Employees';
+}
+function userIdForRole(role){
+  const u = USERS.find(x=>x.role===role && x.active!==false);
+  return u ? u.id : null;
+}
+const ROLE_TO_USERID = {Manager:'u2', GM:'u3', Finance:'u4', Cashier:'u5'};
+function notifyRoleId(role){
+  const primary = ROLE_TO_USERID[role];
+  if (primary && userById(primary) && userById(primary).active!==false) return primary;
+  return userIdForRole(role);
+}
+
+const EXPENSE_TYPES = ['Travel','Meal','Transportation','Office Expense','Customer Entertainment','Training','Other'];
+const EXPENSE_TYPE_ZH = {Travel:'差旅', Meal:'餐飲', Transportation:'交通', 'Office Expense':'辦公用品', 'Customer Entertainment':'商務接待', Training:'教育訓練', Other:'其他'};
+function typeLabel(v){ return state.lang==='zh' ? (EXPENSE_TYPE_ZH[v]||v) : v; }
+const DEPARTMENTS = ['Engineering','Sales','Marketing','Finance','Executive Office','Operations','Customer Success'];
+const DEPARTMENTS_ZH = {Engineering:'工程部', Sales:'業務部', Marketing:'行銷部', Finance:'財務部', 'Executive Office':'執行辦公室', Operations:'營運部', 'Customer Success':'客戶成功部'};
+function deptLabel(v){ return state.lang==='zh' ? (DEPARTMENTS_ZH[v]||v) : v; }
+const CURRENCIES = ['TWD','USD','JPY'];
+/* Static demo FX rates to TWD — NOT live rates; documented in Administration/Architecture. */
+const FX_TO_TWD = { TWD:1, USD:31.5, JPY:0.21 };
+function toTWD(amount, currency){ return Number(amount||0) * (FX_TO_TWD[currency]||1); }
+
+const CONFIG_DEFAULT = { level1Max: 5000, level2Max: 20000 };
+const STORAGE_KEY = 'bvWorkplacePortalDemo_v1';
+
+/* ---------------- Global mutable state ---------------- */
+const state = {
+  view: 'home',
+  lang: 'en',
+  authenticated: false,
+  loginSelectedId: null,
+  loginError: null,
+  currentUserId: 'u1',
+  sidebarOpen: false,
+  identityDropdown: false,
+  notifDropdown: false,
+  config: {...CONFIG_DEFAULT},
+  requests: [],
+  notifications: [],
+  systemEvents: [],
+  reqCounter: 100,
+  selectedRequestId: null,
+  prevView: 'home',
+  detailModalId: null,
+  editingRequestId: null,
+  expenseFilter: 'All',
+  expenseSearch: '',
+  empSearch: '',
+  newExpenseOpen: false,
+  actionModal: null,
+  toastId: 0,
+  archModule: 'components',
+  adminTab: 'routing',
+};
+let storageOK = true;
+
+/* ---------------- Utility ---------------- */
+function uid(prefix){ return prefix + '-' + Math.random().toString(36).slice(2,8).toUpperCase(); }
+function nowISO(){ return new Date().toISOString(); }
+function fmtTS(iso){
+  const d = new Date(iso);
+  return d.toLocaleString(state.lang==='zh' ? 'zh-TW' : 'en-US', {year:'numeric',month:'short',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+}
+function fmtAmount(amount, currency){ return currency + ' ' + Number(amount).toLocaleString('en-US'); }
+function currentUser(){ return userById(state.currentUserId); }
+function esc(str){
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function nextRequestId(){ state.reqCounter += 1; return 'EXP-2026-0' + state.reqCounter; }
+function toast(msg, kind){
+  const id = 't'+(state.toastId++);
+  const wrap = document.getElementById('toastWrap');
+  const el = document.createElement('div');
+  el.className = 'toast' + (kind ? ' '+kind : '');
+  el.id = id; el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(()=>{ el.remove(); }, 3400);
+}
+function logSystemEvent(actor, type, message){
+  state.systemEvents.unshift({id:uid('EVT'), ts:nowISO(), actor, type, message});
+}
+function notify(userId, requestId, message){
+  if (!userId) return;
+  state.notifications.unshift({id:uid('NTF'), userId, requestId, message, ts:nowISO(), read:false});
+}
+function unreadCountFor(userId){ return state.notifications.filter(n=>n.userId===userId && !n.read).length; }
+
+/* ---------------- LocalStorage persistence (Trade-off 3) ---------------- */
+function detectStorage(){
+  try{ const k='__bv_probe__'; localStorage.setItem(k,'1'); localStorage.removeItem(k); return true; }catch(e){ return false; }
+}
+function saveState(){
+  if (!storageOK) return;
+  try{
+    const snapshot = {
+      requests: state.requests, notifications: state.notifications, systemEvents: state.systemEvents,
+      config: state.config, reqCounter: state.reqCounter, currentUserId: state.currentUserId, lang: state.lang,
+      users: USERS
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+  }catch(e){ /* quota or blocked mid-session — fail silently, demo continues in-memory */ }
+}
+function loadState(){
+  if (!storageOK) return false;
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const snap = JSON.parse(raw);
+    if (!snap || !Array.isArray(snap.requests) || !snap.requests.length) return false;
+    state.requests = snap.requests;
+    state.notifications = snap.notifications || [];
+    state.systemEvents = snap.systemEvents || [];
+    state.config = snap.config || {...CONFIG_DEFAULT};
+    state.reqCounter = snap.reqCounter || 100;
+    state.currentUserId = snap.currentUserId || 'u1';
+    state.lang = snap.lang || 'en';
+    if (Array.isArray(snap.users) && snap.users.length) USERS = snap.users;
+    return true;
+  }catch(e){ return false; }
+}
+
+/* ---------------- Routing engine (Configuration-driven) ---------------- */
+function computeRoute(amountTWD, cfg){
+  cfg = cfg || state.config;
+  if (amountTWD <= cfg.level1Max) return {level:1, stages:['Manager','Finance','Cashier'], highValue:false};
+  if (amountTWD <= cfg.level2Max) return {level:2, stages:['Manager','GM','Finance','Cashier'], highValue:false};
+  return {level:3, stages:['Manager','GM','Finance','Cashier'], highValue:true};
+}
+
+/* ---------------- Request + audit event factories ---------------- */
+function mkEvent({requestId, actor, role, action, comment, prior, resulting}){
+  return {id:uid('AUD'), requestId, actor, role, action, comment: comment||'', prior, resulting, ts: nowISO()};
+}
+
+function buildRequest(opts){
+  const amountTWD = toTWD(opts.amount, opts.currency);
+  const route = computeRoute(amountTWD, state.config);
+  const id = nextRequestId();
+  const requesterName = userById(opts.requesterId).name;
+  const req = {
+    id, caseTag: opts.caseTag || null, requesterId: opts.requesterId, department: opts.department,
+    expenseDate: opts.expenseDate, expenseType: opts.expenseType, amount: opts.amount, currency: opts.currency,
+    amountTWD: Math.round(amountTWD), fxRate: FX_TO_TWD[opts.currency]||1,
+    purpose: opts.purpose, costCenter: opts.costCenter, payee: opts.payee, attachment: opts.attachment,
+    routeLevel: route.level, stages: route.stages, highValue: route.highValue,
+    currentStage: route.stages[0], status: 'Pending' + route.stages[0],
+    returnedFrom: null, locked: false, paymentRef: null, paymentDate: null, exception: null,
+    createdAt: nowISO(), history: []
+  };
+  req.history.push(mkEvent({
+    requestId:id, actor:requesterName, role:'Requester', action:'Submit',
+    comment:'Request submitted for approval. Route computed automatically by current Workflow Configuration (Level '+route.level+(opts.currency!=='TWD' ? '; converted to ~NT$'+Math.round(amountTWD).toLocaleString()+' at demo FX rate '+(FX_TO_TWD[opts.currency]||1) : '')+').',
+    prior:'Draft', resulting:req.status
+  }));
+  notify(notifyRoleId(req.currentStage), id, 'New expense request '+id+' awaiting your approval ('+fmtAmount(req.amount,req.currency)+').');
+  return req;
+}
+
+function buildDraftRequest(opts){
+  const id = nextRequestId();
+  const requesterName = userById(opts.requesterId).name;
+  const req = {
+    id, caseTag:null, requesterId: opts.requesterId, department: opts.department,
+    expenseDate: opts.expenseDate, expenseType: opts.expenseType, amount: opts.amount, currency: opts.currency,
+    amountTWD: null, fxRate: FX_TO_TWD[opts.currency]||1,
+    purpose: opts.purpose, costCenter: opts.costCenter, payee: opts.payee, attachment: opts.attachment,
+    routeLevel: null, stages: null, highValue: false,
+    currentStage: null, status: 'Draft',
+    returnedFrom: null, locked: false, paymentRef: null, paymentDate: null, exception: null,
+    createdAt: nowISO(), history: []
+  };
+  req.history.push(mkEvent({requestId:id, actor:requesterName, role:'Requester', action:'Draft', comment:'Saved as draft.', prior:null, resulting:'Draft'}));
+  return req;
+}
+
+function seedRequests(){
+  state.reqCounter = 100;
+  const list = [];
+  (function(){
+    const route = computeRoute(4500, CONFIG_DEFAULT);
+    const id = 'EXP-2025-0098';
+    const req = {
+      id, caseTag:null, requesterId:'u1', department:'Engineering', expenseDate:'2025-12-11',
+      expenseType:'Meal', amount:4500, currency:'TWD', purpose:'Team lunch — sprint retrospective',
+      costCenter:'CC-ENG-104', payee:'Alex Chen', attachment:{filename:'lunch-receipt-1211.pdf', missing:false},
+      routeLevel:route.level, stages:route.stages, highValue:route.highValue, currentStage:'Paid',
+      status:'Paid', returnedFrom:null, locked:true, paymentRef:'PAY-100234', paymentDate:'2025-12-18',
+      exception:null, createdAt:'2025-12-11T02:00:00.000Z', history:[]
+    };
+    req.history.push(mkEvent({requestId:id, actor:'Alex Chen', role:'Requester', action:'Submit', comment:'Submitted for approval.', prior:'Draft', resulting:'PendingManager'}));
+    req.history.push(mkEvent({requestId:id, actor:'Jordan Lee', role:'Manager', action:'Approve', comment:'Approved — within team budget.', prior:'PendingManager', resulting:'PendingFinance'}));
+    req.history.push(mkEvent({requestId:id, actor:'Riley Nakamura', role:'Finance Reviewer', action:'Approve', comment:'Policy and accounting review passed.', prior:'PendingFinance', resulting:'PendingPayment'}));
+    req.history.push(mkEvent({requestId:id, actor:'Casey Romero', role:'Cashier', action:'Payment', comment:'Payment issued via bank transfer.', prior:'PendingPayment', resulting:'Paid'}));
+    list.push(req);
+  })();
+  const caseDefs = [
+    {caseTag:'A', amount:3000, currency:'TWD', expenseType:'Transportation', purpose:'Client site visit — taxi fares', costCenter:'CC-ENG-104', payee:'Alex Chen', missing:false, filename:'taxi-receipts-0304.pdf', expenseDate:'2026-03-04'},
+    {caseTag:'B', amount:12000, currency:'TWD', expenseType:'Customer Entertainment', purpose:'Regional sales offsite — client dinner', costCenter:'CC-ENG-104', payee:'Alex Chen', missing:false, filename:'dinner-receipt-0310.pdf', expenseDate:'2026-03-10'},
+    {caseTag:'C', amount:50000, currency:'TWD', expenseType:'Travel', purpose:'Annual vendor conference — flights & hotel', costCenter:'CC-ENG-104', payee:'Alex Chen', missing:false, filename:'travel-bundle-0315.pdf', expenseDate:'2026-03-15'},
+    {caseTag:'D', amount:8000, currency:'TWD', expenseType:'Office Expense', purpose:'Client workshop — printed materials & supplies', costCenter:'CC-ENG-104', payee:'Alex Chen', missing:true, filename:null, expenseDate:'2026-03-18'},
+  ];
+  caseDefs.forEach(c=>{
+    const req = buildRequest({
+      caseTag:c.caseTag, requesterId:'u1', department:'Engineering', expenseDate:c.expenseDate,
+      expenseType:c.expenseType, amount:c.amount, currency:c.currency, purpose:c.purpose,
+      costCenter:c.costCenter, payee:c.payee, attachment:{filename:c.filename, missing:c.missing}
+    });
+    list.push(req);
+  });
+  return list;
+}
+
+/* ---------------- Authorization + transition engine ---------------- */
+function priorStagesOf(req){
+  const idx = req.stages.indexOf(req.currentStage);
+  return idx>0 ? req.stages.slice(0, idx) : [];
+}
+function canAct(user, req, action){
+  if (action === 'submit-draft'){ return user.id===req.requesterId && req.status==='Draft'; }
+  if (action === 'edit-request'){ return user.id===req.requesterId && (req.status==='Draft' || req.status==='Returned' || req.status==='Rejected'); }
+  if (req.locked) return false;
+  if (req.exception) return false;
+  if (action === 'approve' || action === 'reject'){
+    if (req.currentStage === 'Manager') return user.role==='Manager' && req.status==='PendingManager';
+    if (req.currentStage === 'GM')      return user.role==='GM'      && req.status==='PendingGM';
+    if (req.currentStage === 'Finance') return user.role==='Finance' && req.status==='PendingFinance';
+    return false;
+  }
+  if (action === 'return'){ return user.role==='Finance' && req.currentStage==='Finance' && req.status==='PendingFinance'; }
+  if (action === 'pay'){ return user.role==='Cashier' && req.status==='PendingPayment'; }
+  if (action === 'resubmit'){ return user.id===req.requesterId && (req.status==='Returned' || req.status==='Rejected'); }
+  return false;
+}
+
+function applyAction(req, action, payload){
+  const user = currentUser();
+  if (!canAct(user, req, action)){ toast(t('toast_authfail'), 'bad'); return false; }
+  const prior = req.status;
+  const roleLbl = roleLabel(user.role);
+
+  if (action === 'submit-draft'){
+    const amountTWD = toTWD(req.amount, req.currency);
+    const route = computeRoute(amountTWD, state.config);
+    req.amountTWD = Math.round(amountTWD); req.fxRate = FX_TO_TWD[req.currency]||1;
+    req.routeLevel = route.level; req.stages = route.stages; req.highValue = route.highValue;
+    req.currentStage = route.stages[0]; req.status = 'Pending' + route.stages[0];
+    req.history.push(mkEvent({
+      requestId:req.id, actor:user.name, role:'Requester', action:'Submit',
+      comment:'Draft submitted for approval. Route computed automatically (Level '+route.level+(req.currency!=='TWD' ? '; converted to ~NT$'+req.amountTWD.toLocaleString()+' at demo FX rate '+req.fxRate : '')+').',
+      prior, resulting:req.status
+    }));
+    notify(notifyRoleId(req.currentStage), req.id, 'New expense request '+req.id+' awaiting your approval ('+fmtAmount(req.amount,req.currency)+').');
+    logSystemEvent(user.name, 'Submission', req.id+' submitted from Draft (Level '+route.level+').');
+  }
+  else if (action === 'approve'){
+    const idx = req.stages.indexOf(req.currentStage);
+    if (req.currentStage === 'Finance'){
+      req.status = 'PendingPayment'; req.currentStage = 'Cashier';
+      notify(notifyRoleId('Cashier'), req.id, 'Request '+req.id+' approved by Finance — ready for payment.');
+    } else {
+      const next = req.stages[idx+1];
+      req.currentStage = next; req.status = 'Pending' + next;
+      notify(notifyRoleId(next), req.id, 'Request '+req.id+' awaiting your approval ('+fmtAmount(req.amount,req.currency)+').');
+    }
+    req.history.push(mkEvent({requestId:req.id, actor:user.name, role:roleLbl, action:'Approve', comment:payload.comment||'', prior, resulting:req.status}));
+    logSystemEvent(user.name, 'Approval', req.id+' approved at '+req.currentStage+' stage.');
+  }
+  else if (action === 'reject'){
+    req.returnedFrom = req.currentStage; req.status = 'Rejected';
+    req.history.push(mkEvent({requestId:req.id, actor:user.name, role:roleLbl, action:'Reject', comment:payload.comment, prior, resulting:'Rejected'}));
+    notify(req.requesterId, req.id, 'Request '+req.id+' was rejected by '+roleLbl+' — action needed.');
+    logSystemEvent(user.name, 'Rejection', req.id+' sent back to requester from '+req.returnedFrom+' stage.');
+  }
+  else if (action === 'return'){
+    const target = payload.target || 'Requester';
+    if (target === 'Requester'){
+      req.returnedFrom = req.currentStage; req.status = 'Returned';
+      req.history.push(mkEvent({requestId:req.id, actor:user.name, role:roleLbl, action:'Return', comment:payload.comment, prior, resulting:'Returned'}));
+      notify(req.requesterId, req.id, 'Request '+req.id+' was returned by '+roleLbl+' — action needed.');
+      logSystemEvent(user.name, 'Return', req.id+' returned to requester from '+req.currentStage+' stage.');
+    } else {
+      req.currentStage = target; req.status = 'Pending' + target;
+      req.history.push(mkEvent({requestId:req.id, actor:user.name, role:roleLbl, action:'Return', comment:payload.comment+' (Returned to '+roleLabel(target)+')', prior, resulting:req.status}));
+      notify(notifyRoleId(target), req.id, 'Request '+req.id+' returned to you by '+roleLbl+' for re-review.');
+      logSystemEvent(user.name, 'Return', req.id+' returned to '+target+' stage by '+roleLbl+'.');
+    }
+  }
+  else if (action === 'resubmit'){
+    const target = req.returnedFrom;
+    req.currentStage = target; req.status = 'Pending' + target; req.returnedFrom = null;
+    if (payload.attachmentFilename){ req.attachment = {filename:payload.attachmentFilename, missing:false}; }
+    req.history.push(mkEvent({requestId:req.id, actor:user.name, role:roleLabel('Requester'), action:'Resubmit', comment:payload.comment, prior, resulting:req.status}));
+    notify(notifyRoleId(target), req.id, 'Request '+req.id+' corrected and resubmitted for your review.');
+    logSystemEvent(user.name, 'Resubmit', req.id+' resubmitted to '+target+' stage.');
+  }
+  else if (action === 'pay'){
+    req.status = 'Paid'; req.currentStage = 'Paid'; req.locked = true;
+    req.paymentRef = payload.paymentRef; req.paymentDate = payload.paymentDate;
+    req.history.push(mkEvent({requestId:req.id, actor:user.name, role:roleLabel('Cashier'), action:'Payment', comment:'Payment reference '+payload.paymentRef+' recorded. Approved amount left unmodified.', prior, resulting:'Paid'}));
+    notify(req.requesterId, req.id, 'Payment completed for '+req.id+' — request closed.');
+    logSystemEvent(user.name, 'Payment', req.id+' marked Paid / Closed and locked.');
+  }
+  return true;
+}
+
+/* ---------------- Reset ---------------- */
+function resetDemo(){
+  USERS = defaultUsers();
+  state.requests = seedRequests();
+  state.notifications = [];
+  state.systemEvents = [];
+  state.config = {...CONFIG_DEFAULT};
+  state.currentUserId = 'u1';
+  state.view = 'expense';
+  state.selectedRequestId = null;
+  state.expenseFilter = 'All';
+  state.expenseSearch = '';
+  logSystemEvent('System', 'Reset', 'Demo environment reset. Cases A–D restored to initial PendingManager state.');
+  toast(t('toast_reset'), 'good');
+  render();
+}
+
+/* ================================================================
+   RENDERING
+   ================================================================ */
+function requestsForRole(user){
+  if (user.role === 'Requester'){ return state.requests.filter(r=>r.requesterId===user.id && (r.status==='Returned' || r.status==='Rejected')); }
+  const stageStatus = {Manager:'PendingManager', GM:'PendingGM', Finance:'PendingFinance', Cashier:'PendingPayment'}[user.role];
+  return state.requests.filter(r=>r.status===stageStatus);
+}
+function statusBadge(req){
+  if (req.status==='Draft') return '<span class="badge neutral">'+t('status_Draft')+'</span>';
+  if (req.status==='Paid') return '<span class="badge good">'+t('status_Paid')+'</span>';
+  if (req.status==='Returned') return '<span class="badge bad">'+t('status_Returned')+'</span>';
+  if (req.status==='Rejected') return '<span class="badge bad">'+t('status_Rejected')+'</span>';
+  return '<span class="badge info">'+t('status_'+req.status)+'</span>';
+}
+function routeLevelBadge(req){
+  if (req.routeLevel==null) return '<span class="badge neutral">'+t('status_Draft')+'</span>';
+  if (req.highValue) return '<span class="badge hv">'+t('level3')+' · '+t('hv_badge')+'</span>';
+  if (req.routeLevel===2) return '<span class="badge warn">'+t('level2')+'</span>';
+  return '<span class="badge neutral">'+t('level1')+'</span>';
+}
+function renderStepper(req){
+  const skipGM = req.routeLevel === 1;
+  const order = ['Requester','Manager','GM','Finance','Cashier'];
+  const isPaid = req.status === 'Paid';
+  let currentIdx;
+  if (isPaid) currentIdx = order.length - 1; // merged Cashier/Paid step, fully done
+  else if (req.status==='Returned' || req.status==='Rejected') currentIdx = order.indexOf(req.returnedFrom);
+  else if (req.status==='Draft') currentIdx = -1;
+  else currentIdx = order.indexOf(req.currentStage);
+
+  let html = '<div class="stepper">';
+  order.forEach((stg, i)=>{
+    const isSkipped = stg==='GM' && skipGM;
+    const isMergedDone = isPaid && i === order.length-1;
+    let cls = 'step';
+    if (isSkipped) cls += ' skipped';
+    else if (isMergedDone) cls += ' done';
+    else if (i < currentIdx) cls += ' done';
+    else if (i === currentIdx) cls += ' current';
+    if (i>0){ html += '<div class="connector'+(i<=currentIdx && !isSkipped ? ' filled':'')+'"></div>'; }
+    const label = roleLabel(stg);
+    const dotContent = isSkipped ? '—' : ((i < currentIdx || isMergedDone) ? '✓' : (i+1));
+    html += '<div class="'+cls+'"><div class="node"><div class="dot">'+dotContent+'</div><div class="lbl">'+label+'</div></div></div>';
+  });
+  html += '</div>';
+  return html;
+}
+function shellHeader(title, sub){
+  return '<div class="flex-between gap-md" style="margin-bottom:18px;"><div><h1>'+title+'</h1>'+(sub?'<p class="small" style="margin:0;">'+sub+'</p>':'')+'</div></div>';
+}
+
+/* ---------- LOGIN GATE ---------- */
+function demoPasswordFor(u){ return (u.name||'').trim().split(/\s+/)[0].toLowerCase(); }
+function userEmail(u){ return (u.name||'user').toLowerCase().replace(/\s+/g,'.')+'@bvgroup.example'; }
+function loginableUsers(){ return activeUsers().filter(u=>u.name && u.name.trim()); }
+function viewLogin(){
+  const companyName = COMPANY[state.lang] || COMPANY.en;
+  const candidates = loginableUsers();
+  const preselect = candidates.find(u=>u.id===state.loginSelectedId) ? state.loginSelectedId : (candidates.find(u=>u.id===state.currentUserId) ? state.currentUserId : (candidates[0] ? candidates[0].id : ''));
+  return `
+  <div style="min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;padding:20px;background:var(--bg);box-sizing:border-box;">
+    <div style="width:100%;max-width:400px;">
+      <div class="lang-toggle" style="justify-content:center;margin-bottom:14px;display:flex;">
+        <button class="btn sm ${state.lang==='en'?'primary':''}" data-action="set-lang" data-lang="en">EN</button>
+        <button class="btn sm ${state.lang==='zh'?'primary':''}" data-action="set-lang" data-lang="zh" style="margin-left:6px;">中文</button>
+      </div>
+      <div class="card card-pad" style="text-align:center;">
+        <div class="brand-mark" style="margin:0 auto 12px;width:52px;height:52px;font-size:1.3rem;border-radius:14px;">BV</div>
+        <h1 style="margin-bottom:2px;">${t('login_title')}</h1>
+        <p class="small muted" style="margin-bottom:18px;">${companyName} · ${t('login_subtitle')}</p>
+        ${state.loginError ? '<div class="notice bad" style="text-align:left;margin-bottom:14px;">⚠ '+t('login_error')+'</div>' : ''}
+        ${!candidates.length ? '<div class="notice warn" style="text-align:left;">⚠ '+t('login_none_active')+'</div><button class="btn gap-sm" data-action="reset-demo" style="width:100%;justify-content:center;">'+t('btn_reset')+'</button>' : `
+        <form id="loginForm" style="text-align:left;">
+          <div class="field">
+            <label for="loginIdentity"><i class="fa-solid fa-user" aria-hidden="true"></i> ${t('login_identity')}</label>
+            <select id="loginIdentity" name="identity" required>
+              ${candidates.map(u=>`<option value="${u.id}" ${u.id===preselect?'selected':''}>${esc(u.name)} — ${roleLabel(u.role)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="field">
+            <label for="loginPassword"><i class="fa-solid fa-lock" aria-hidden="true"></i> ${t('login_password')}</label>
+            <input type="password" id="loginPassword" name="password" required autocomplete="current-password">
+          </div>
+          <div class="flex-between" style="margin-bottom:6px;">
+            <span></span>
+            <a href="javascript:;" class="small" data-action="noop-forgot"><i class="far fa-question-circle" aria-hidden="true"></i> ${t('login_forgot')}</a>
+          </div>
+          <button type="submit" class="btn primary" style="width:100%;justify-content:center;margin-top:10px;">${t('login_submit')}</button>
+        </form>
+        <p class="small muted" style="margin-top:16px;">${t('login_hint')}</p>
+        `}
+      </div>
+    </div>
+  </div>`;
+}
+function handleLogin(){
+  const selectEl = document.getElementById('loginIdentity');
+  const pwEl = document.getElementById('loginPassword');
+  const selectedId = selectEl ? selectEl.value : '';
+  const pw = (pwEl && pwEl.value || '').trim();
+  const u = userById(selectedId);
+  if (!selectedId || !pw){ state.loginError = true; render(); return; }
+  if (u && u.active!==false && pw.toLowerCase()===demoPasswordFor(u)){
+    state.authenticated = true;
+    state.currentUserId = u.id;
+    state.loginSelectedId = null;
+    state.loginError = null;
+    logSystemEvent(u.name, 'Login', u.name+' ('+roleLabel(u.role)+') signed in.');
+    render();
+  } else {
+    state.loginError = true;
+    render();
+    const pw2 = document.getElementById('loginPassword');
+    if (pw2) pw2.focus();
+  }
+}
+function handleLogout(){
+  const prevName = currentUser().name;
+  logSystemEvent(prevName, 'Logout', prevName+' signed out.');
+  state.authenticated = false;
+  state.identityDropdown = false;
+  state.notifDropdown = false;
+  state.loginSelectedId = null;
+  state.view = 'home';
+  render();
+}
+function handleGotoLoginAs(id){
+  const prevName = currentUser().name;
+  logSystemEvent(prevName, 'Switch User', prevName+' requested to switch to another identity via login.');
+  state.authenticated = false;
+  state.identityDropdown = false;
+  state.notifDropdown = false;
+  state.detailModalId = null;
+  state.loginError = null;
+  state.loginSelectedId = id || state.currentUserId;
+  state.view = 'home';
+  render();
+}
+
+/* ---------- MY ACCOUNT (the signed-in identity's own profile — visual demo only) ---------- */
+function viewMyAccount(){
+  const u = currentUser();
+  const langLabel = state.lang==='zh' ? '中文(台灣)' : 'English (United States)';
+  const regionLabel = state.lang==='zh' ? '台灣' : 'United States';
+  return `
+  <button class="btn ghost sm" data-action="nav" data-view="${state.prevView||'home'}">${t('ma_back')}</button>
+  <div class="flex-between gap-md" style="margin:12px 0 18px;">
+    <h1 style="margin:0;">${t('ma_title')}</h1>
+    <button class="btn ghost sm" data-action="demo-noop">
+      <i class="fa-solid fa-key" aria-hidden="true" style="color:var(--brand);"></i>
+      <span style="text-align:left;line-height:1.15;"><strong style="display:block;font-size:.78rem;">${t('ma_security')}</strong><span class="muted" style="font-size:.68rem;">${t('ma_security_sub')}</span></span>
+    </button>
+  </div>
+
+  <div class="card card-pad">
+    <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:center;">
+      <div style="width:110px;height:110px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--brand-ink));display:flex;align-items:center;justify-content:center;flex:0 0 110px;">
+        <i class="fa-solid fa-user" aria-hidden="true" style="font-size:2.6rem;color:#fff;"></i>
+      </div>
+      <div style="flex:1;min-width:220px;">
+        <p style="margin:0 0 12px;">${t('ma_photo_desc')}</p>
+        <button class="btn" data-action="demo-noop">${t('ma_add_photo')}</button>
+      </div>
+    </div>
+  </div>
+  <div class="card card-pad" style="margin-top:1px;border-top:none;border-radius:0;">
+    <div class="flex-between">
+      <div><span class="muted small">${t('ma_fullname')}</span><br><strong>${esc(u.name)}</strong> <span class="badge neutral">${roleLabel(u.role)}</span></div>
+      <button class="btn ghost sm" data-action="demo-noop">${t('ma_edit_name')}</button>
+    </div>
+  </div>
+
+  <div class="card gap-md" style="overflow:hidden;">
+    <div class="card-pad" style="border-bottom:1px solid var(--line);">
+      <div class="flex-between"><h3 style="margin:0;">${t('ma_profile_info')}</h3><button class="btn ghost sm" data-action="demo-noop">${t('ma_edit_profile')}</button></div>
+    </div>
+    <table>
+      <tbody>
+        <tr><td style="width:180px;">${t('ma_birthday')}</td><td class="muted">${t('ma_not_set')}</td><td></td></tr>
+        <tr><td>${t('ma_country')}</td><td>${regionLabel}</td><td></td></tr>
+        <tr><td>${t('ma_language')}</td><td><strong>${langLabel}</strong></td><td></td></tr>
+        <tr><td>${t('ma_regionformat')}</td><td class="muted">${regionLabel}</td><td></td></tr>
+        <tr><td>${t('ma_related')}</td><td colspan="2"><a href="javascript:;" data-action="demo-noop">${t('ma_billing')}</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card gap-md" style="overflow:hidden;">
+    <div class="card-pad" style="border-bottom:1px solid var(--line);">
+      <div class="flex-between"><h3 style="margin:0;">${t('ma_account_info')}</h3><button class="btn ghost sm" data-action="demo-noop">${t('ma_edit_account')}</button></div>
+    </div>
+    <table>
+      <tbody>
+        <tr><td style="width:180px;">${t('ma_email')}</td><td>${userEmail(u)}</td><td style="text-align:right;"><a href="javascript:;" data-action="demo-noop">${t('ma_comm_pref')}</a></td></tr>
+        <tr><td>${t('ma_phone')}</td><td class="muted">${t('ma_none')}</td><td></td></tr>
+      </tbody>
+    </table>
+    <div class="card-pad small btnrow" style="border-top:1px solid var(--line);">
+      <a href="javascript:;" data-action="demo-noop">${t('ma_link_signin')}</a>
+      <a href="javascript:;" data-action="demo-noop">${t('ma_link_linkphone')}</a>
+      <a href="javascript:;" data-action="demo-noop">${t('ma_link_secnotice')}</a>
+      <a href="javascript:;" data-action="demo-noop">${t('ma_link_closeaccount')}</a>
+    </div>
+  </div>
+  `;
+}
+
+/* ---------- HOME ---------- */
+function viewHome(){
+  const u = currentUser();
+  const hr = new Date().getHours();
+  const greet = hr<12 ? t('home_greet_morning') : (hr<18 ? t('home_greet_afternoon') : t('home_greet_evening'));
+  const myPending = requestsForRole(u).length;
+
+  const quickCards = [
+    {ic:'🧾', t:t('qa_expense_t'), d:t('qa_expense_d'), view:'expense', active:true},
+    {ic:'🛒', t:t('qa_purchase_t'), d:t('qa_purchase_d'), active:false},
+    {ic:'🌴', t:t('qa_leave_t'), d:t('qa_leave_d'), active:false},
+    {ic:'📋', t:t('qa_qms_t'), d:t('qa_qms_d'), active:false},
+    {ic:'🛠️', t:t('qa_ithelp_t'), d:t('qa_ithelp_d'), active:false},
+    {ic:'🤖', t:t('qa_ai_t'), d:t('qa_ai_d'), active:false},
+  ];
+  let cardsHtml = quickCards.map(c=>{
+    if (c.active){
+      return '<button class="card qa-card" data-action="nav" data-view="'+c.view+'" style="text-align:left;border:1px solid var(--line);">'
+        +'<div class="qa-ic">'+c.ic+'</div><h3>'+c.t+'</h3><p>'+c.d+'</p><span class="badge good" style="align-self:flex-start;">'+t('qa_available')+'</span></button>';
+    }
+    return '<div class="card qa-card placeholder"><div class="qa-ic">'+c.ic+'</div><h3>'+c.t+'</h3><p>'+c.d+'</p><span class="badge neutral" style="align-self:flex-start;">'+t('qa_comingsoon')+'</span></div>';
+  }).join('');
+
+  return `
+  <div class="notice info" role="note"><span>🧪</span><div><strong>${t('demo_banner').split('—')[0].trim()}</strong> ${t('demo_banner').split('—')[1]||''}</div></div>
+  <div class="gap-md">${shellHeader(greet+', '+u.name.split(' ')[0], t('home_signed_as')+': '+userTitle(u)+' · '+userDept(u))}</div>
+  <div class="grid cols-2 gap-md">
+    <div class="card card-pad">
+      <h3>${t('home_emp_search_title')}</h3>
+      <div class="field" style="margin-bottom:8px;"><input type="text" id="empSearch" placeholder="${t('home_emp_search_ph')}" value="${esc(state.empSearch||'')}" oninput="onEmpSearch(this.value)"></div>
+      <div id="empResults" class="small muted">${renderEmpResults(state.empSearch||'')}</div>
+    </div>
+    <div class="card card-pad">
+      <h3>${t('home_summary_title')}</h3>
+      <div class="dl">
+        <dt>${t('home_summary_pending')}</dt><dd>${myPending} ${t('home_summary_pending_val')}</dd>
+        <dt>${t('home_summary_unread')}</dt><dd>${unreadCountFor(u.id)}</dd>
+        <dt>${t('home_summary_open')}</dt><dd>${state.requests.filter(r=>r.status!=='Paid').length} ${t('home_summary_open_val')}</dd>
+      </div>
+      <div class="btnrow gap-sm">
+        <button class="btn primary sm" data-action="nav" data-view="mywork">${t('home_gotowork')}</button>
+        <button class="btn sm" data-action="nav" data-view="expense">${t('home_gotoexpense')}</button>
+      </div>
+    </div>
+  </div>
+  <h2 class="gap-lg">${t('home_quick_actions')}</h2>
+  <div class="grid cols-4">${cardsHtml}</div>
+  <div class="grid cols-2 gap-lg">
+    <div class="card card-pad">
+      <h3>${t('home_news_title')}</h3>
+      <div class="small"><p>${t('home_news_1')}</p><p>${t('home_news_2')}</p><p>${t('home_news_3')}</p></div>
+    </div>
+    <div class="card card-pad">
+      <h3>${t('home_policy_title')} <span class="badge neutral">${t('home_policy_badge')}</span></h3>
+      <table><tbody>
+        <tr><td>${t('home_policy_1')}</td><td class="small muted">${t('home_policy_1v')}</td></tr>
+        <tr><td>${t('home_policy_2')}</td><td class="small muted">${t('home_policy_2v')}</td></tr>
+        <tr><td>${t('home_policy_3')}</td><td class="small muted">${t('home_policy_3v')}</td></tr>
+      </tbody></table>
+      <p class="small muted gap-sm">${t('home_policy_note')}</p>
+    </div>
+  </div>`;
+}
+function renderEmpResults(q){
+  q = (q||'').toLowerCase().trim();
+  const results = activeUsers().filter(u => !q || u.name.toLowerCase().includes(q) || roleLabel(u.role).toLowerCase().includes(q) || userTitle(u).toLowerCase().includes(q) || userDept(u).toLowerCase().includes(q));
+  if (!results.length) return t('home_emp_search_none');
+  return '<table><tbody>' + results.map(u=>'<tr><td>'+u.name+'</td><td class="muted">'+userTitle(u)+'</td><td class="muted">'+userDept(u)+'</td></tr>').join('') + '</tbody></table>';
+}
+function onEmpSearch(v){ state.empSearch = v; document.getElementById('empResults').innerHTML = renderEmpResults(v); }
+
+/* ---------- EXPENSE WORKSPACE ---------- */
+function visibleRequestsForRole(u){
+  if (u.role === 'Requester') return state.requests.filter(r=>r.requesterId===u.id);
+  return state.requests.filter(r=>Array.isArray(r.stages) && r.stages.includes(u.role));
+}
+function viewExpense(){
+  const u = currentUser();
+  const all = visibleRequestsForRole(u);
+  const counts = {
+    All: all.length,
+    'In Approval': all.filter(r=>['PendingManager','PendingGM','PendingFinance','PendingPayment'].includes(r.status)).length,
+    Returned: all.filter(r=>r.status==='Returned' || r.status==='Rejected').length,
+    Paid: all.filter(r=>r.status==='Paid').length,
+  };
+  let list = all;
+  if (state.expenseFilter!=='All'){
+    if (state.expenseFilter==='In Approval') list = list.filter(r=>['PendingManager','PendingGM','PendingFinance','PendingPayment'].includes(r.status));
+    else if (state.expenseFilter==='Returned') list = list.filter(r=>r.status==='Returned' || r.status==='Rejected');
+    else list = list.filter(r=>r.status===state.expenseFilter);
+  }
+  const q = (state.expenseSearch||'').toLowerCase().trim();
+  if (q) list = list.filter(r => r.id.toLowerCase().includes(q) || r.purpose.toLowerCase().includes(q) || r.payee.toLowerCase().includes(q));
+
+  const rows = list.map(r=>`
+    <tr>
+      <td><span class="reqid">${r.id}</span>${r.caseTag?' <span class="badge neutral">Case '+r.caseTag+'</span>':''}</td>
+      <td>${esc(r.purpose)}</td>
+      <td class="amount-cell">${fmtAmount(r.amount,r.currency)}</td>
+      <td>${routeLevelBadge(r)}</td>
+      <td>${r.status==='Paid'?t('closed'):((r.status==='Returned'||r.status==='Rejected')?t('returned_to_requester'):(r.status==='Draft'?t('status_Draft'):roleLabel(r.currentStage)))}</td>
+      <td>${statusBadge(r)}</td>
+      <td><button class="btn sm" data-action="nav-detail" data-id="${r.id}">${t('btn_open')}</button></td>
+    </tr>`).join('');
+
+  const filterTabs = [['All','f_all'],['In Approval','f_inapproval'],['Returned','f_returned'],['Paid','f_paid']];
+
+  return `
+  ${shellHeader(t('expense_title'), t('expense_sub',{l1:state.config.level1Max.toLocaleString(), l2:state.config.level2Max.toLocaleString()}))}
+  ${u.role!=='Requester' ? '<div class="notice info gap-sm" style="margin-bottom:14px;">🧭 '+t('expense_scope_note',{role:roleLabel(u.role)})+'</div>' : ''}
+  <div class="grid cols-4 gap-md" style="margin-bottom:18px;">
+    <div class="card metric"><div class="k">${counts.All}</div><div class="l">${t('m_all')}</div></div>
+    <div class="card metric"><div class="k">${counts['In Approval']}</div><div class="l">${t('m_inapproval')}</div></div>
+    <div class="card metric"><div class="k">${counts.Returned}</div><div class="l">${t('m_returned')}</div></div>
+    <div class="card metric"><div class="k">${counts.Paid}</div><div class="l">${t('m_paid')}</div></div>
+  </div>
+  <div class="card card-pad">
+    <div class="flex-between" style="margin-bottom:10px;">
+      <div class="tabbar" style="border:none;margin:0;">
+        ${filterTabs.map(([f,k])=>`<button class="${state.expenseFilter===f?'active':''}" data-action="expense-filter" data-filter="${f}">${t(k)} <span class="muted">(${counts[f]})</span></button>`).join('')}
+      </div>
+      <div class="btnrow">
+        <input type="text" id="expSearchInput" placeholder="${t('search_ph')}" value="${esc(state.expenseSearch)}" oninput="onExpenseSearch(this.value)" style="border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:.82rem;">
+        <button class="btn" data-action="reset-demo">${t('btn_reset')}</button>
+        <button class="btn primary" data-action="open-new-expense" ${u.role!=='Requester'?'disabled title="'+esc(t('ne_readonly_notice'))+'"':''}>${t('btn_newexpense')}</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+    <table class="searchable">
+      <thead><tr><th>${t('th_id')}</th><th>${t('th_purpose')}</th><th>${t('th_amount')}</th><th>${t('th_route')}</th><th>${t('th_stage')}</th><th>${t('th_status')}</th><th>${t('th_action')}</th></tr></thead>
+      <tbody>${rows || '<tr><td colspan="7" class="muted center" style="padding:26px;">'+t('no_match')+'</td></tr>'}</tbody>
+    </table>
+    </div>
+  </div>
+  `;
+}
+function onExpenseSearch(v){
+  state.expenseSearch=v;
+  const prev = document.getElementById('expSearchInput');
+  const pos = prev ? prev.selectionStart : null;
+  renderInto('#viewRoot', viewExpense);
+  const next = document.getElementById('expSearchInput');
+  if (next){ next.focus(); if (pos!=null) next.setSelectionRange(pos,pos); }
+}
+
+function reqMark(){ return ' <span class="req-mark">*</span>'; }
+function newExpenseModal(){
+  const u = currentUser();
+  const editingReq = state.editingRequestId ? state.requests.find(r=>r.id===state.editingRequestId) : null;
+  const amountNum = Number(state.neAmount);
+  const amountValid = state.neAmount!=='' && state.neAmount!=null && !isNaN(amountNum) && amountNum>0;
+  const currency = state.neCurrency || 'TWD';
+  const amountTWD = amountValid ? toTWD(amountNum, currency) : 0;
+  const preview = computeRoute(amountTWD, state.config);
+  const routeStr = preview.stages.map(s=>roleLabel(s)).join(' → ');
+  const attachSel = state.neAttach || 'ok';
+  const hasExistingFile = !!(editingReq && !editingReq.attachment.missing && editingReq.attachment.filename);
+  const defaultDept = editingReq ? editingReq.department : u.dept_en;
+  const defaultType = editingReq ? editingReq.expenseType : EXPENSE_TYPES[0];
+  const isResubmitMode = !!(editingReq && (editingReq.status==='Returned' || editingReq.status==='Rejected'));
+  const isDraftEditMode = !!(editingReq && editingReq.status==='Draft');
+  const modalTitle = isResubmitMode ? t('ne_title_resubmit') : (isDraftEditMode ? t('ne_title_edit') : t('ne_title'));
+  return `
+  <div class="modal-backdrop">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="neTitle">
+      <div class="modal-head"><h2 id="neTitle" style="margin:0;">${modalTitle}</h2><button class="btn ghost sm" data-action="close-new-expense" aria-label="Close">✕</button></div>
+      <div class="modal-body">
+        ${u.role!=='Requester' ? '<div class="notice warn">'+t('ne_switch_notice',{name:u.name, role:roleLabel(u.role)})+'</div>' : ''}
+        ${isResubmitMode ? '<div class="notice warn">'+t('am_returned_from',{id:editingReq.id, stage:roleLabel(editingReq.returnedFrom)})+' “'+esc(editingReq.history[editingReq.history.length-1].comment)+'”</div>' : ''}
+        <form id="newExpenseForm">
+          <div class="row2">
+            <div class="field"><label>${t('ne_requester')}</label><input type="text" value="${u.name+' — '+userTitle(u)}" readonly></div>
+            <div class="field"><label for="neDept">${t('ne_department')}${reqMark()}</label>
+              <select id="neDept">${DEPARTMENTS.map(d=>`<option value="${d}" ${d===defaultDept?'selected':''}>${deptLabel(d)}</option>`).join('')}</select>
+            </div>
+          </div>
+          <div class="row2">
+            <div class="field"><label for="neDate">${t('ne_date')}${reqMark()}</label><input type="date" id="neDate" required max="${new Date().toISOString().slice(0,10)}" value="${editingReq && editingReq.expenseDate ? editingReq.expenseDate : ''}"></div>
+            <div class="field"><label for="neType">${t('ne_type')}${reqMark()}</label>
+              <select id="neType">${EXPENSE_TYPES.map(x=>`<option value="${x}" ${x===defaultType?'selected':''}>${typeLabel(x)}</option>`).join('')}</select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="neAmount">${t('ne_amount')}${reqMark()}</label>
+            <div class="amt-row">
+              <input type="text" inputmode="decimal" id="neAmount" placeholder="${t('ne_amount_ph')}" required oninput="onAmountPreview(this.value)" value="${esc(state.neAmount||'')}" class="${state.neAmount && !amountValid ? 'invalid' : ''}">
+              <select id="neCurrency" onchange="onCurrencyPreview(this.value)">${CURRENCIES.map(c=>`<option ${c===currency?'selected':''}>${c}</option>`).join('')}</select>
+            </div>
+            <div id="neAmountError">${state.neAmount && !amountValid ? '<div class="err-text">'+t('ne_amount_error')+'</div>' : ''}</div>
+            <div class="hint" id="neFxHint" style="${amountValid && currency!=='TWD' ? '' : 'display:none;'}">${amountValid && currency!=='TWD' ? t('ne_fx_note',{twd:Math.round(amountTWD).toLocaleString(), rate:FX_TO_TWD[currency]}) : ''}</div>
+          </div>
+          <div class="field"><label for="nePurpose">${t('ne_purpose')}${reqMark()}</label><textarea id="nePurpose" required placeholder="${t('ne_purpose_ph')}">${editingReq ? esc(editingReq.purpose) : ''}</textarea></div>
+          <div class="row2">
+            <div class="field"><label for="neCC">${t('ne_cc')}${reqMark()}</label><input type="text" id="neCC" required placeholder="${t('ne_cc_ph')}" value="${editingReq ? esc(editingReq.costCenter) : ''}"></div>
+            <div class="field"><label for="nePayee">${t('ne_payee')}${reqMark()}</label><input type="text" id="nePayee" required value="${editingReq ? esc(editingReq.payee) : u.name}"></div>
+          </div>
+          <div class="field">
+            <label for="neAttach">${t('ne_attach')}${reqMark()}</label>
+            <select id="neAttach" onchange="onAttachChange(this.value)">
+              <option value="ok" ${attachSel==='ok'?'selected':''}>${t('ne_attach_ok')}</option>
+              <option value="missing" ${attachSel==='missing'?'selected':''}>${t('ne_attach_missing')}</option>
+            </select>
+            <div class="hint">${t('ne_attach_hint')}</div>
+          </div>
+          <div class="field" id="neFileWrap" style="${attachSel==='ok'?'':'display:none;'}">
+            <label for="neReceiptFile">${t('ne_file_label')}${hasExistingFile ? '' : reqMark()}</label>
+            <input type="file" id="neReceiptFile" accept=".pdf,.jpg,.jpeg,.png,.docx,application/pdf,image/jpeg,image/png,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+            <div class="hint">${t('ne_file_hint')}</div>
+            ${hasExistingFile ? '<div class="hint">'+t('ne_current_file',{name:esc(editingReq.attachment.filename)})+'</div>' : ''}
+            <div id="neFileError"></div>
+          </div>
+          <div class="notice info" id="routePreview">
+            <span>🧭</span>
+            <div><strong>${t('ne_route_title',{level:preview.level, hv:preview.highValue?' · '+t('hv_badge'):''})}</strong><br>
+            ${routeStr} → ${t('status_Paid')}. ${t('ne_route_body')}</div>
+          </div>
+          ${isResubmitMode ? `<div class="field"><label for="resubmitNote">${t('am_resubmit_note')}${reqMark()}</label><textarea id="resubmitNote" placeholder="${t('am_resubmit_ph')}">${t('am_resubmit_default')}</textarea><div id="resubmitNoteError"></div></div>` : ''}
+        </form>
+      </div>
+      <div class="modal-foot">
+        <button class="btn" data-action="close-new-expense">${t('ne_cancel')}</button>
+        ${isResubmitMode ? '' : `<button class="btn" data-action="save-draft-expense" ${u.role!=='Requester'?'disabled':''}>${t('ne_savedraft')}</button>`}
+        <button class="btn primary" data-action="submit-new-expense" ${u.role!=='Requester'?'disabled':''}>${isResubmitMode ? t('mywork_fixresubmit') : t('ne_submit')}</button>
+      </div>
+    </div>
+  </div>`;
+}
+function onAmountPreview(v){
+  state.neAmount = v;
+  const num = Number(v);
+  const valid = v!=='' && v!=null && !isNaN(num) && num>0;
+  const currency = state.neCurrency || document.getElementById('neCurrency').value;
+  const amtEl = document.getElementById('neAmount');
+  const errEl = document.getElementById('neAmountError');
+  if (amtEl){ amtEl.classList.toggle('invalid', !!v && !valid); }
+  if (errEl){ errEl.innerHTML = (v && !valid) ? '<div class="err-text">'+t('ne_amount_error')+'</div>' : ''; }
+  const amountTWD = valid ? toTWD(num, currency) : 0;
+  const preview = computeRoute(amountTWD, state.config);
+  const el = document.getElementById('routePreview');
+  if (el){
+    const routeStr = preview.stages.map(s=>roleLabel(s)).join(' → ');
+    el.innerHTML = '<span>🧭</span><div><strong>'+t('ne_route_title',{level:preview.level, hv:preview.highValue?' · '+t('hv_badge'):''})+'</strong><br>'+routeStr+' → '+t('status_Paid')+'. '+t('ne_route_body')+'</div>';
+  }
+  const fxHint = document.getElementById('neFxHint');
+  if (fxHint){
+    if (valid && currency!=='TWD'){ fxHint.style.display=''; fxHint.textContent = t('ne_fx_note',{twd:Math.round(amountTWD).toLocaleString(), rate:FX_TO_TWD[currency]}); }
+    else { fxHint.style.display='none'; fxHint.textContent=''; }
+  }
+}
+function onCurrencyPreview(v){ state.neCurrency = v; onAmountPreview(state.neAmount||''); }
+function onAttachChange(v){
+  state.neAttach = v;
+  const wrap = document.getElementById('neFileWrap');
+  if (wrap){ wrap.style.display = v==='ok' ? '' : 'none'; }
+  const errEl = document.getElementById('neFileError');
+  if (errEl) errEl.innerHTML = '';
+}
+
+/* ---------- MY WORK ---------- */
+function viewMyWork(){
+  const pendingByRole = {};
+  USERS.forEach(u=>{
+    if (u.role==='Requester') pendingByRole[u.id] = state.requests.filter(r=>r.requesterId===u.id && (r.status==='Returned'||r.status==='Rejected')).length;
+    else pendingByRole[u.id] = requestsForRole(u).length;
+  });
+  const identityCards = activeUsers().map(x=>{
+    const isCurrent = x.id===state.currentUserId;
+    const pendingBadge = pendingByRole[x.id]>0 ? '<span class="badge warn">'+pendingByRole[x.id]+' '+t('mywork_pending')+'</span>' : '<span class="badge good">'+t('mywork_clear')+'</span>';
+    if (isCurrent){
+      return `<div class="card qa-card" style="text-align:left;border:2px solid var(--brand);">
+        <div class="flex-between"><h3 style="margin:0;">${x.name}</h3>${pendingBadge}</div>
+        <p style="margin:0;">${roleLabel(x.role)} · ${userDept(x)}</p>
+        <span class="badge info" style="align-self:flex-start;">${t('mywork_current')}</span>
+      </div>`;
+    }
+    return `<div class="card qa-card" style="text-align:left;border:1px solid var(--line);opacity:.55;cursor:not-allowed;" title="${esc(t('mywork_switch_via_menu'))}">
+      <div class="flex-between"><h3 style="margin:0;">${x.name}</h3>${pendingBadge}</div>
+      <p style="margin:0;">${roleLabel(x.role)} · ${userDept(x)}</p>
+    </div>`;
+  }).join('');
+
+  const u = currentUser();
+  const queue = requestsForRole(u);
+  let queueHtml;
+  if (u.role==='Requester'){
+    queueHtml = queue.length ? queue.map(r=>`
+      <div class="card card-pad gap-sm">
+        <div class="flex-between">
+          <div><span class="reqid">${r.id}</span> ${r.caseTag?'<span class="badge neutral">Case '+r.caseTag+'</span>':''} — ${esc(r.purpose)}</div>
+          <span class="amount-cell">${fmtAmount(r.amount,r.currency)}</span>
+        </div>
+        <p class="small muted">${t('mywork_returned_from',{stage:roleLabel(r.returnedFrom)})} “${esc(r.history[r.history.length-1].comment)}”</p>
+        <div class="btnrow">
+          <button class="btn sm" data-action="view-detail-modal" data-id="${r.id}">${t('mywork_view')}</button>
+          <button class="btn primary sm" data-action="edit-request" data-id="${r.id}">${t('mywork_fixresubmit')}</button>
+        </div>
+      </div>`).join('') : '<p class="muted">'+t('mywork_no_returned')+'</p>';
+  } else {
+    queueHtml = queue.length ? `<div class="table-wrap"><table><thead><tr><th>${t('th_id')}</th><th>${t('th_purpose')}</th><th>${t('th_amount')}</th><th>${t('th_route')}</th><th>${t('th_action')}</th></tr></thead><tbody>
+      ${queue.map(r=>`<tr>
+        <td><span class="reqid">${r.id}</span> ${r.caseTag?'<span class="badge neutral">Case '+r.caseTag+'</span>':''}</td>
+        <td>${esc(r.purpose)}</td>
+        <td class="amount-cell">${fmtAmount(r.amount,r.currency)}</td>
+        <td>${routeLevelBadge(r)}</td>
+        <td class="btnrow">
+          <button class="btn sm" data-action="view-detail-modal" data-id="${r.id}">${t('th_view')}</button>
+          ${u.role==='Finance' ? `
+            <button class="btn primary sm" data-action="open-action" data-id="${r.id}" data-act="approve">${t('act_approve')}</button>
+            <button class="btn danger sm" data-action="open-action" data-id="${r.id}" data-act="return">${t('act_return')}</button>
+            <button class="btn danger sm" data-action="open-action" data-id="${r.id}" data-act="reject">${t('act_reject')}</button>
+          ` : u.role==='Cashier' ? `
+            <button class="btn primary sm" data-action="open-action" data-id="${r.id}" data-act="pay">${t('act_pay')}</button>
+          ` : `
+            <button class="btn primary sm" data-action="open-action" data-id="${r.id}" data-act="approve">${t('act_approve')}</button>
+            <button class="btn danger sm" data-action="open-action" data-id="${r.id}" data-act="reject">${t('act_reject')}</button>
+          `}
+        </td>
+      </tr>`).join('')}
+    </tbody></table></div>` : '<p class="muted">'+t('mywork_queue_clear')+'</p>';
+  }
+
+  return `
+  ${shellHeader(t('mywork_title'), t('mywork_sub'))}
+  <h3>${t('mywork_identities')}</h3>
+  <div class="grid cols-3 gap-md" style="margin-bottom:22px;">${identityCards}</div>
+  <div class="flex-between"><h2>${t('mywork_queue_for')} ${u.name} (${roleLabel(u.role)})</h2></div>
+  ${queueHtml}
+  `;
+}
+
+function actionModal(){
+  const {requestId, act} = state.actionModal;
+  const req = state.requests.find(r=>r.id===requestId);
+  if (!req) return '';
+  const titles = {approve:t('am_title_approve'), reject:t('am_title_reject'), return:t('am_title_return'), pay:t('am_title_pay'), resubmit:t('am_title_resubmit')};
+  let body = '';
+  if (act==='approve' || act==='reject' || act==='return'){
+    const targets = act==='return' ? priorStagesOf(req) : [];
+    body = `
+      <p class="small">${req.id} — ${esc(req.purpose)} — <span class="amount-cell">${fmtAmount(req.amount,req.currency)}</span></p>
+      ${act==='return' ? `
+      <div class="field"><label for="returnTarget">${t('am_return_target')}${reqMark()}</label>
+        <select id="returnTarget">
+          <option value="Requester">${roleLabel('Requester')}</option>
+          ${targets.map(s=>`<option value="${s}">${roleLabel(s)}</option>`).join('')}
+        </select>
+        <div class="hint">${t('am_return_target_hint')}</div>
+      </div>` : ''}
+      <div class="field"><label for="cmtInput">${t('am_comment_req')}</label>
+        <textarea id="cmtInput" placeholder="${act==='approve'?t('am_comment_ph_approve'):t('am_comment_ph_reject')}"></textarea>
+        <div id="cmtError"></div>
+      </div>`;
+  } else if (act==='pay'){
+    body = `
+      <p class="small">${req.id} — ${t('am_amount_readonly',{amt:'<strong class="amount-cell">'+fmtAmount(req.amount,req.currency)+'</strong>'})}</p>
+      <div class="row2">
+        <div class="field"><label for="payRef">${t('am_payref')}${reqMark()}</label><input type="text" id="payRef" placeholder="e.g. PAY-100411"></div>
+        <div class="field"><label for="payDate">${t('am_paydate')}${reqMark()}</label><input type="date" id="payDate" value="${new Date().toISOString().slice(0,10)}"></div>
+      </div>`;
+  } else if (act==='resubmit'){
+    body = `
+      <p class="small">${t('am_returned_from',{id:req.id, stage:roleLabel(req.returnedFrom)})} “${esc(req.history[req.history.length-1].comment)}”</p>
+      ${req.attachment.missing ? `<div class="field"><label for="fixFile">${t('am_fix_attach')}</label><input type="text" id="fixFile" placeholder="e.g. receipt-8000-supplies.pdf" value="receipt-${req.id.slice(-4)}.pdf"></div>` : ''}
+      <div class="field"><label for="cmtInput">${t('am_resubmit_note')}${reqMark()}</label><textarea id="cmtInput" placeholder="${t('am_resubmit_ph')}">${t('am_resubmit_default')}</textarea>
+        <div id="cmtError"></div>
+      </div>`;
+  }
+  return `
+  <div class="modal-backdrop">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-head"><h2 style="margin:0;">${titles[act]}</h2><button class="btn ghost sm" data-action="close-action">✕</button></div>
+      <div class="modal-body">${body}</div>
+      <div class="modal-foot">
+        <button class="btn" data-action="close-action">${t('am_cancel')}</button>
+        <button class="btn ${act==='reject'||act==='return'?'danger':'primary'}" data-action="confirm-action" data-id="${req.id}" data-act="${act}">${t('am_confirm')} ${titles[act]}</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---------- REQUEST DETAIL ---------- */
+function renderDetailInner(req){
+  const requester = userById(req.requesterId);
+  const u = currentUser();
+
+  let actions = '';
+  if (canAct(u, req, 'submit-draft')) actions += `<button class="btn primary" data-action="edit-request" data-id="${req.id}">${t('act_editdraft')}</button>`;
+  if (canAct(u, req, 'approve')) actions += `<button class="btn primary" data-action="open-action" data-id="${req.id}" data-act="approve">${t('act_approve')}</button>`;
+  if (canAct(u, req, 'reject')) actions += `<button class="btn danger" data-action="open-action" data-id="${req.id}" data-act="reject">${t('act_reject')}</button>`;
+  if (canAct(u, req, 'return')) actions += `<button class="btn danger" data-action="open-action" data-id="${req.id}" data-act="return">${t('act_return')}</button>`;
+  if (canAct(u, req, 'pay')) actions += `<button class="btn primary" data-action="open-action" data-id="${req.id}" data-act="pay">${t('act_pay')}</button>`;
+  if (canAct(u, req, 'resubmit')) actions += `<button class="btn primary" data-action="edit-request" data-id="${req.id}">${t('mywork_fixresubmit')}</button>`;
+  if (!actions) actions = '<span class="muted small">'+t('detail_noactions')+'</span>';
+
+  const historyHtml = req.history.slice().reverse().map(h=>`
+    <div class="hist-item">
+      <div class="top"><span class="actor">${esc(h.actor)}</span> <span class="muted">·</span> <span class="action">${h.action}</span> <span class="badge neutral">${h.role}</span></div>
+      <div class="ts">${fmtTS(h.ts)}</div>
+      ${h.comment ? '<div class="comment">'+esc(h.comment)+'</div>' : ''}
+      ${h.resulting ? '<div class="states">'+t('f_status')+': '+h.resulting+'</div>' : ''}
+    </div>`).join('');
+
+  return `
+  <div class="flex-between gap-md" style="margin:12px 0 4px;">
+    <div><h1 style="margin-bottom:2px;">${req.id} ${req.caseTag?'<span class="badge neutral">Case '+req.caseTag+'</span>':''}</h1><p class="small" style="margin:0;">${esc(req.purpose)||'—'}</p></div>
+    <div class="btnrow">${routeLevelBadge(req)} ${statusBadge(req)}</div>
+  </div>
+  ${req.locked ? '<div class="lockstrip gap-sm">🔒 '+t('detail_locked')+'</div>' : ''}
+  ${req.exception ? '<div class="notice bad gap-sm">⚠ '+t('detail_exception',{cor:req.exception.correlationId})+'</div>' : ''}
+  ${req.status==='Draft' ? '<div class="notice info gap-sm">📝 '+t('detail_draft_note')+'</div>' : ''}
+  <div class="card card-pad gap-md">
+    <h3>${t('detail_route')}</h3>
+    ${req.status==='Draft' ? '<p class="small muted">'+t('detail_draft_noroute')+'</p>' : renderStepper(req)}
+    ${(req.status==='Returned'||req.status==='Rejected') ? '<p class="small" style="color:var(--bad);">'+t('detail_returned_note',{stage:roleLabel(req.returnedFrom)})+'</p>' : ''}
+  </div>
+  <div class="grid cols-2 gap-md" style="align-items:start;">
+    <div class="card card-pad">
+      <h3>${t('detail_fields')}</h3>
+      <dl class="dl">
+        <dt>${t('f_requester')}</dt><dd>${requester.name} — ${userTitle(requester)}</dd>
+        <dt>${t('f_status')}</dt><dd>${statusBadge(req)}</dd>
+        <dt>${t('f_department')}</dt><dd>${deptLabel(req.department)}</dd>
+        <dt>${t('f_date')}</dt><dd>${req.expenseDate||'—'}</dd>
+        <dt>${t('f_type')}</dt><dd>${typeLabel(req.expenseType)}</dd>
+        <dt>${t('f_amount')}</dt><dd class="amount-cell">${fmtAmount(req.amount,req.currency)}${req.currency!=='TWD' && req.amountTWD ? ' <span class="muted small">(≈ '+fmtAmount(req.amountTWD,'TWD')+')</span>' : ''}</dd>
+        <dt>${t('f_cc')}</dt><dd>${esc(req.costCenter)||'—'}</dd>
+        <dt>${t('f_payee')}</dt><dd>${esc(req.payee)||'—'}</dd>
+        <dt>${t('f_attachment')}</dt><dd>${req.attachment.missing ? '<span class="badge bad">'+t('f_missing')+'</span>' : '📎 '+esc(req.attachment.filename)}</dd>
+        <dt>${t('f_routelevel')}</dt><dd>${req.routeLevel==null ? t('status_Draft') : (t('level'+req.routeLevel)+(req.highValue?' ('+t('hv_badge')+')':''))}</dd>
+        <dt>${t('f_currentrole')}</dt><dd>${req.status==='Paid'?'—':(req.status==='Draft'?'—':((req.status==='Returned'||req.status==='Rejected')?roleLabel('Requester'):roleLabel(req.currentStage)))}</dd>
+        ${req.paymentRef ? '<dt>'+t('f_paymentref')+'</dt><dd class="mono">'+req.paymentRef+' · '+req.paymentDate+'</dd>' : ''}
+      </dl>
+      <div class="btnrow gap-md">${actions}</div>
+    </div>
+    <div class="card card-pad">
+      <div class="flex-between"><h3>${t('detail_audit')}</h3><button class="btn sm" data-action="export-one" data-id="${req.id}">${t('detail_export')}</button></div>
+      ${historyHtml}
+    </div>
+  </div>`;
+}
+function viewDetail(){
+  const req = state.requests.find(r=>r.id===state.selectedRequestId);
+  if (!req) return '<p>'+t('detail_notfound')+'</p><button class="btn" data-action="nav" data-view="expense">'+t('detail_back')+'</button>';
+  return `
+  <button class="btn ghost sm" data-action="nav" data-view="expense">${t('detail_back')}</button>
+  ${renderDetailInner(req)}
+  `;
+}
+function requestDetailModal(){
+  const req = state.requests.find(r=>r.id===state.detailModalId);
+  if (!req) return '';
+  return `
+  <div class="modal-backdrop">
+    <div class="modal" role="dialog" aria-modal="true" style="max-width:920px;">
+      <div class="modal-head"><h2 style="margin:0;">${t('nav_mywork')} — ${req.id}</h2><button class="btn ghost sm" data-action="close-detail-modal" aria-label="Close">✕</button></div>
+      <div class="modal-body">${renderDetailInner(req)}</div>
+    </div>
+  </div>`;
+}
+
+/* ---------- ARCHITECTURE ---------- */
+function viewArchitecture(){
+  const modules = [
+    ['components','arch_tab_components'], ['data','arch_tab_data'], ['states','arch_tab_states'], ['permissions','arch_tab_permissions'],
+    ['exceptions','arch_tab_exceptions'], ['ops','arch_tab_ops'], ['tradeoffs','arch_tab_tradeoffs'], ['gaps','arch_tab_gaps'],
+  ];
+  const tabs = modules.map(([k,l])=>`<button class="${state.archModule===k?'active':''}" data-action="arch-tab" data-tab="${k}">${t(l)}</button>`).join('');
+  const zh = state.lang==='zh';
+
+  const sections = {
+    components: zh ? `
+      <h3>目標 Microsoft 365 架構</h3>
+      <p>本 Demo 為 Standalone Simulation。下表將每一個模擬元件對應至其預期的正式環境服務。</p>
+      <div class="arch-diagram">
+        <div class="arch-box"><div class="lyr">Experience Layer</div><h4>SharePoint Portal</h4><p>作為全域響應式外殼 (Shell)，並嵌入 Power Apps Canvas App 作為 Role-aware 任務操作介面，取代本 Demo 的模擬 Portal Shell。</p></div>
+        <div class="arch-box"><div class="lyr">Data Layer</div><h4>Microsoft Lists</h4><p>儲存 Expense Requests（主表）、Approval History（稽核表，Append-only）與 Configuration（門檻與權限對照表）。</p></div>
+        <div class="arch-box"><div class="lyr">Process Layer</div><h4>Power Automate</h4><p>處理 Amount-based Routing 計算、觸發核准流程、寄送通知，並以 Exception Scopes (Try/Catch) 處理失敗重試。</p></div>
+        <div class="arch-box"><div class="lyr">Identity Layer</div><h4>Entra ID Groups</h4><p>進行 Least Privilege（最小權限）與 Separation of Duties（職責分離）的管控。</p></div>
+      </div>
+      <h3>元件職責邊界</h3>
+      <ul class="small">
+        <li><strong>Portal Shell（本檔案）</strong> — 僅負責呈現，不持有任何業務規則的真實來源；畫面上顯示的每個欄位都衍生自資料層的紀錄。</li>
+        <li><strong>Workflow Configuration 清單</strong> — 路由門檻與角色對應審批人的唯一真實來源；調整此清單即可改變未來所有申請的行為，無需異動流程邏輯。</li>
+        <li><strong>Power Automate 流程</strong> — 擁有所有狀態轉換與強制執行的權責。前端從不直接寫入「下一階段」，而是提出操作請求，由流程重新驗證授權後才決定結果狀態。</li>
+        <li><strong>Approval History 清單</strong> — Append-only 帳本，任何元件皆不得更新或刪除既有列，只能新增。</li>
+      </ul>` : `
+      <h3>Target Microsoft 365 architecture</h3>
+      <p>This Demo is a Standalone Simulation. The table below maps every simulated element to its intended production service.</p>
+      <div class="arch-diagram">
+        <div class="arch-box"><div class="lyr">Experience Layer</div><h4>SharePoint Portal</h4><p>Serves as the global responsive Shell, embedding a Power Apps Canvas App as the role-aware task UI — replacing this Demo's simulated Portal Shell.</p></div>
+        <div class="arch-box"><div class="lyr">Data Layer</div><h4>Microsoft Lists</h4><p>Stores Expense Requests (main table), Approval History (audit table, append-only) and Configuration (thresholds & permission mapping).</p></div>
+        <div class="arch-box"><div class="lyr">Process Layer</div><h4>Power Automate</h4><p>Handles Amount-based Routing calculation, triggers approvals, sends notifications, and wraps failure retry in Exception Scopes (Try/Catch).</p></div>
+        <div class="arch-box"><div class="lyr">Identity Layer</div><h4>Entra ID Groups</h4><p>Enforces Least Privilege and Separation of Duties.</p></div>
+      </div>
+      <h3>Component responsibility boundaries</h3>
+      <ul class="small">
+        <li><strong>Portal Shell (this file)</strong> — presentation only. Owns no business rule truth; every field it shows is derived from the Data layer's records.</li>
+        <li><strong>Workflow Configuration list</strong> — single source of truth for routing thresholds and role→approver mapping. Changing it changes behaviour for all future requests without touching flow logic.</li>
+        <li><strong>Power Automate flows</strong> — own all state transitions and enforcement. The UI never writes a "next stage" — it requests an action, and the flow decides the resulting state after re-checking authorization server-side.</li>
+        <li><strong>Approval History list</strong> — append-only ledger. No component is permitted to update or delete existing rows, only insert new ones.</li>
+      </ul>`,
+    data: zh ? `
+      <h3>資料模型（六張受控清單）</h3>
+      <p>下列六張清單／資料表對應正式環境的 Microsoft Lists，本 Demo 以相同欄位結構的記憶體陣列模擬。</p>
+      <h4>表 1：Expense Requests（主單據表）</h4>
+      <div class="table-wrap"><table><tbody>
+        <tr><td class="mono">Request_ID</td><td>String，唯一碼</td></tr>
+        <tr><td class="mono">Requester</td><td>String，建立者</td></tr>
+        <tr><td class="mono">Department</td><td>String，部門</td></tr>
+        <tr><td class="mono">Expense_Date</td><td>Date</td></tr>
+        <tr><td class="mono">Expense_Type</td><td>String，費用類型</td></tr>
+        <tr><td class="mono">Amount</td><td>Number，報銷金額</td></tr>
+        <tr><td class="mono">Currency</td><td>String，幣別</td></tr>
+        <tr><td class="mono">Purpose</td><td>String，事由</td></tr>
+        <tr><td class="mono">Project_Cost_Center</td><td>String，專案或成本中心</td></tr>
+        <tr><td class="mono">Payee</td><td>String，受款人</td></tr>
+        <tr><td class="mono">Attachment_Status</td><td>Boolean，是否有附件或收據</td></tr>
+        <tr><td class="mono">Route_Level</td><td>String，Level 1／2／3</td></tr>
+        <tr><td class="mono">Status</td><td>String，Draft／Submitted／Pending Manager／Pending GM／Pending Finance／Pending Payment／Paid-Closed</td></tr>
+        <tr><td class="mono">Payment_Reference</td><td>String，出納付款參考碼</td></tr>
+        <tr><td class="mono">Is_Locked</td><td>Boolean，結案鎖定標記</td></tr>
+      </tbody></table></div>
+      <h4 class="gap-md">表 2：Approval History（稽核軌跡表 － Append-only）</h4>
+      <div class="table-wrap"><table><tbody>
+        <tr><td class="mono">History_ID</td><td>String，唯一碼</td></tr>
+        <tr><td class="mono">Request_ID</td><td>String，關聯主單據表</td></tr>
+        <tr><td class="mono">Actor_Name</td><td>String，操作者姓名</td></tr>
+        <tr><td class="mono">Role</td><td>String，操作者角色</td></tr>
+        <tr><td class="mono">Action</td><td>String，Submit／Approve／Reject／Return／Resubmit／Payment</td></tr>
+        <tr><td class="mono">Timestamp</td><td>DateTime，操作時間</td></tr>
+        <tr><td class="mono">Comment_Reason</td><td>String，意見與理由</td></tr>
+        <tr><td class="mono">Resulting_Status</td><td>String，操作後狀態</td></tr>
+      </tbody></table></div>
+      <h4 class="gap-md">表 3：Workflow Configuration（路由規則設定表）</h4>
+      <div class="table-wrap"><table><tbody>
+        <tr><td class="mono">Config_Key</td><td>String，例：Level_1_Threshold</td></tr>
+        <tr><td class="mono">Config_Value</td><td>Number，例：5000</td></tr>
+      </tbody></table></div>
+      <h4 class="gap-md">表 4：Approval Matrix（簽核權限矩陣表）</h4>
+      <div class="table-wrap"><table><tbody>
+        <tr><td class="mono">Role_Name</td><td>String，Manager／GM／Finance／Cashier</td></tr>
+        <tr><td class="mono">Assigned_Identity</td><td>String，對應的使用者或群組</td></tr>
+      </tbody></table></div>
+      <h4 class="gap-md">表 5：User Profile（會員個人基本資料表）</h4>
+      <div class="table-wrap"><table><tbody>
+        <tr><td class="mono">User_ID</td><td>String，主鍵，對應表 6 的 Account_ID</td></tr>
+        <tr><td class="mono">Full_Name</td><td>String，全名</td></tr>
+        <tr><td class="mono">Photo_URL</td><td>String，設定檔相片連結（可為空）</td></tr>
+        <tr><td class="mono">Birthday</td><td>Date，生日（可為空）</td></tr>
+        <tr><td class="mono">Country_Region</td><td>String，國家或地區</td></tr>
+        <tr><td class="mono">Language</td><td>String，語言偏好，例：zh-TW／en-US</td></tr>
+        <tr><td class="mono">Regional_Format</td><td>String，地區格式</td></tr>
+        <tr><td class="mono">Email</td><td>String，電子郵件地址</td></tr>
+        <tr><td class="mono">Phone</td><td>String，電話號碼（可為空）</td></tr>
+      </tbody></table></div>
+      <p class="small muted">此表對應「我的帳戶」頁面顯示的個人基本資料；本 Demo 中每個 Member Account 皆對應一筆 User Profile 記錄，欄位皆為靜態展示值，編輯連結未串接實際寫入。</p>
+      <h4 class="gap-md">表 6：Member Account（會員帳號表）</h4>
+      <div class="table-wrap"><table><tbody>
+        <tr><td class="mono">Account_ID</td><td>String，主鍵</td></tr>
+        <tr><td class="mono">Account</td><td>String，登入帳號／顯示名稱，即該身分的 Full_Name</td></tr>
+        <tr><td class="mono">Password_Hash</td><td>String，密碼雜湊值（隱碼儲存，絕不存明碼；畫面僅顯示遮罩，例：••••••••）</td></tr>
+        <tr><td class="mono">Role</td><td>String，對應表 2 Approval History 的 Role 欄位所使用的角色列舉（Requester／Manager／GM／Finance／Cashier），可於「系統管理 → 簽核權限」指派與調整</td></tr>
+        <tr><td class="mono">Is_Active</td><td>Boolean，帳號是否啟用；預設為 true。停用（false）的帳號無法用於登入或身分切換，也不會出現在 Demo 站台的「切換身分」清單中</td></tr>
+      </tbody></table></div>
+      <p class="gap-md">Workflow Configuration 於送出當下被讀取一次並鎖存至該單據的 Route_Level，因此日後調整門檻值不會回溯影響進行中的單據；Approval History 僅允許新增，不允許修改或刪除既有列，作為「what actually happened」的最終真實來源。</p>` : `
+      <h3>Data model (six controlled lists)</h3>
+      <p>The six lists/tables below map to Microsoft Lists in production; this Demo represents them as in-memory arrays with the same field shape.</p>
+      <h4>Table 1: Expense Requests (main record table)</h4>
+      <div class="table-wrap"><table><tbody>
+        <tr><td class="mono">Request_ID</td><td>String, unique key</td></tr>
+        <tr><td class="mono">Requester</td><td>String, creator</td></tr>
+        <tr><td class="mono">Department</td><td>String</td></tr>
+        <tr><td class="mono">Expense_Date</td><td>Date</td></tr>
+        <tr><td class="mono">Expense_Type</td><td>String</td></tr>
+        <tr><td class="mono">Amount</td><td>Number</td></tr>
+        <tr><td class="mono">Currency</td><td>String</td></tr>
+        <tr><td class="mono">Purpose</td><td>String</td></tr>
+        <tr><td class="mono">Project_Cost_Center</td><td>String</td></tr>
+        <tr><td class="mono">Payee</td><td>String</td></tr>
+        <tr><td class="mono">Attachment_Status</td><td>Boolean, has receipt/attachment</td></tr>
+        <tr><td class="mono">Route_Level</td><td>String, Level 1/2/3</td></tr>
+        <tr><td class="mono">Status</td><td>String, Draft/Submitted/Pending Manager/Pending GM/Pending Finance/Pending Payment/Paid-Closed</td></tr>
+        <tr><td class="mono">Payment_Reference</td><td>String</td></tr>
+        <tr><td class="mono">Is_Locked</td><td>Boolean, closed/locked flag</td></tr>
+      </tbody></table></div>
+      <h4 class="gap-md">Table 2: Approval History (audit trail — append-only)</h4>
+      <div class="table-wrap"><table><tbody>
+        <tr><td class="mono">History_ID</td><td>String, unique key</td></tr>
+        <tr><td class="mono">Request_ID</td><td>String, FK to main table</td></tr>
+        <tr><td class="mono">Actor_Name</td><td>String</td></tr>
+        <tr><td class="mono">Role</td><td>String</td></tr>
+        <tr><td class="mono">Action</td><td>String, Submit/Approve/Reject/Return/Resubmit/Payment</td></tr>
+        <tr><td class="mono">Timestamp</td><td>DateTime</td></tr>
+        <tr><td class="mono">Comment_Reason</td><td>String</td></tr>
+        <tr><td class="mono">Resulting_Status</td><td>String</td></tr>
+      </tbody></table></div>
+      <h4 class="gap-md">Table 3: Workflow Configuration (routing rules)</h4>
+      <div class="table-wrap"><table><tbody>
+        <tr><td class="mono">Config_Key</td><td>String, e.g. Level_1_Threshold</td></tr>
+        <tr><td class="mono">Config_Value</td><td>Number, e.g. 5000</td></tr>
+      </tbody></table></div>
+      <h4 class="gap-md">Table 4: Approval Matrix</h4>
+      <div class="table-wrap"><table><tbody>
+        <tr><td class="mono">Role_Name</td><td>String, Manager/GM/Finance/Cashier</td></tr>
+        <tr><td class="mono">Assigned_Identity</td><td>String, mapped user or group</td></tr>
+      </tbody></table></div>
+      <h4 class="gap-md">Table 5: User Profile (personal basic info)</h4>
+      <div class="table-wrap"><table><tbody>
+        <tr><td class="mono">User_ID</td><td>String, PK — maps to Table 6's Account_ID</td></tr>
+        <tr><td class="mono">Full_Name</td><td>String</td></tr>
+        <tr><td class="mono">Photo_URL</td><td>String, profile photo link (nullable)</td></tr>
+        <tr><td class="mono">Birthday</td><td>Date (nullable)</td></tr>
+        <tr><td class="mono">Country_Region</td><td>String</td></tr>
+        <tr><td class="mono">Language</td><td>String, e.g. zh-TW / en-US</td></tr>
+        <tr><td class="mono">Regional_Format</td><td>String</td></tr>
+        <tr><td class="mono">Email</td><td>String</td></tr>
+        <tr><td class="mono">Phone</td><td>String (nullable)</td></tr>
+      </tbody></table></div>
+      <p class="small muted">Backs the "My Account" screen's personal info; this Demo maps one User Profile record to each Member Account, with static display values — edit links are visual only and not wired to real writes.</p>
+      <h4 class="gap-md">Table 6: Member Account (login, password, role)</h4>
+      <div class="table-wrap"><table><tbody>
+        <tr><td class="mono">Account_ID</td><td>String, PK</td></tr>
+        <tr><td class="mono">Account</td><td>String, login username / display name — the identity's Full_Name</td></tr>
+        <tr><td class="mono">Password_Hash</td><td>String, hashed password (masked storage — plaintext is never stored; UI only ever shows a mask, e.g. ••••••••)</td></tr>
+        <tr><td class="mono">Role</td><td>String, drawn from the same role enum used in Table 2 Approval History's Role field (Requester/Manager/GM/Finance/Cashier), assignable and changeable from Administration → Approval Matrix</td></tr>
+        <tr><td class="mono">Is_Active</td><td>Boolean, defaults to true. A deactivated (false) account cannot sign in or be selected as an identity, and is excluded from the Demo Portal's "Switch Identity" list</td></tr>
+      </tbody></table></div>
+      <p class="gap-md">Workflow Configuration is read once at submission time and stamped onto the request's Route_Level, so later threshold changes never retroactively re-route an in-flight request. Approval History only ever accepts inserts — never updates or deletes — making it the durable source of truth for "what actually happened."</p>`,
+    states: zh ? `
+      <h3>狀態機</h3>
+      <p><strong>正常路徑：</strong>Draft → Submitted → Pending Manager → ［金額 > NT$5,000 則進入 Pending GM］→ Pending Finance → Pending Payment → Paid/Closed（鎖定）。</p>
+      <p><strong>例外路徑：</strong></p>
+      <ul class="small">
+        <li>經理／總經理／財務 Reject，或財務 Return → 狀態退回 Requester Correction，保留原始 Reject／Return 紀錄 → 申請人補件後 Resubmit → 由正確 Stage 繼續（並非從 Draft 重新開始）。</li>
+        <li>系統失效救援 (Safe Retry)：Power Automate 發生寫入失敗或超時 → 進入 Try/Catch 的 Catch Scope → 寫入 Exception Record 並發送 Owner Alert → 管理員點擊 Safe Retry → 由最後有效狀態復原，具備冪等性，不產生重複核准或付款。</li>
+      </ul>
+      <p>Paid/Closed 為終態且鎖定；付款後如需更正，應建立參照原單的補償性單據，而非改寫原單的欄位或歷史紀錄。</p>` : `
+      <h3>State machine</h3>
+      <p><strong>Happy path:</strong> Draft → Submitted → Pending Manager → [if amount > NT$5,000, Pending GM] → Pending Finance → Pending Payment → Paid/Closed (Locked).</p>
+      <p><strong>Exception path:</strong></p>
+      <ul class="small">
+        <li>Reject (Manager/GM/Finance) or Return (Finance) → status falls back to Requester Correction, preserving the original Reject/Return record → Requester attaches evidence and Resubmits → flow continues from the correct stage (never restarted from Draft).</li>
+        <li>Safe Retry: a Power Automate write failure or timeout → enters the Catch Scope of a Try/Catch → writes an Exception Record and sends an Owner Alert → an administrator clicks Safe Retry → resumes from the last valid state; the retry is idempotent and never produces a duplicate approval or payment.</li>
+      </ul>
+      <p>Paid/Closed is terminal and locked; corrections after payment require a new compensating record referencing the original, never a rewrite of the original's fields or history.</p>`,
+    permissions: zh ? `
+      <h3>權限模型</h3>
+      <ul class="small">
+        <li><strong>Requester 單據存取</strong> — 列層級權限：申請人僅能讀寫 Requester = 自己 Entra ID 的單據（Dataverse Row-level Security／SharePoint 項目層級權限），且僅限 Status = Returned（補正）或初始 Draft 階段。</li>
+        <li><strong>角色 Queue 範圍</strong> — 每個 Queue 畫面皆以伺服器端依 CurrentStage + 呼叫者的 Entra 群組成員資格過濾，而非前端的「if role == X」判斷。</li>
+        <li><strong>財務／出納職責分離</strong> — 不同的 Entra ID 群組（GRP-Finance-Reviewers 與 GRP-Cashiers）搭配不同的欄位層級權限：出納僅取得 Payment_Reference／Payment_Date 的寫入權限，絕不包含 Amount。</li>
+        <li><strong>Portal Admin 限制</strong> — Workflow Configuration 的修改需要獨立的 GRP-Workflow-Admins 成員資格，與任何核准角色分開，且每次變更本身皆為受稽核事件。</li>
+      </ul>
+      <div class="notice warn"><span>🔒</span><div><strong>隱藏按鈕不等於安全性。</strong>本 Demo 為求畫面簡潔而隱藏未授權的按鈕，但 <code>canAct()</code> 函式會在每次操作前重新驗證角色、階段與狀態 — 這與正式環境中 Power Automate「Authorization」Scope 於觸發前對 Dataverse／Entra ID 做的檢查是同一種概念。正式環境中，惡意使用者可透過攔截 API 直接嘗試核准單據，因此授權必須落在資料層與流程層強制執行（列／欄層級安全性、流程端角色檢查），絕不能只依賴前端 JavaScript，因為瀏覽器永遠可能被使用者本人操縱。</div></div>` : `
+      <h3>Permission model</h3>
+      <ul class="small">
+        <li><strong>Requester item access</strong> — row-level: a Requester can read/write only requests where Requester = their own Entra ID (Dataverse row-level security / SharePoint item-level permissions), and only while Status = Returned (for corrections) or during initial Draft.</li>
+        <li><strong>Role queue scope</strong> — each queue view is filtered server-side by CurrentStage + the caller's Entra group membership, not by a client-side "if role == X" check.</li>
+        <li><strong>Finance / Cashier separation of duties</strong> — different Entra ID groups (GRP-Finance-Reviewers vs GRP-Cashiers) with different column-level permissions: Cashiers get write access to Payment_Reference/Payment_Date only, never Amount.</li>
+        <li><strong>Portal Admin limits</strong> — Workflow Configuration edits require a distinct GRP-Workflow-Admins membership, separate from any approval role, and every change is itself an audited event.</li>
+      </ul>
+      <div class="notice warn"><span>🔒</span><div><strong>Hiding a button is not security.</strong> This Demo hides unauthorized buttons in the UI for clarity, but the <code>canAct()</code> function re-validates role, stage and status before any transition is applied — the same concept a Power Automate "Authorization" scope would run against Dataverse/Entra before touching data. In production, a malicious user could bypass the UI entirely and call the API directly to try to approve a request — so authorization must be enforced at the Data and Process layers (row/column-level security, flow-side role checks), never in client-side JavaScript alone, because a browser can always be manipulated by its own user.</div></div>`,
+    exceptions: zh ? `
+      <h3>例外處理</h3>
+      <ul class="small">
+        <li><strong>Try/Catch Scopes</strong> — Power Automate 中每個關鍵動作（核准寫入、通知、付款寫入）皆包在 Scope 內，並搭配平行的 Catch 分支。</li>
+        <li><strong>Correlation ID</strong> — 每次流程執行皆會將 CorrelationID 寫入 Exception Record，方便支援團隊跨多次流程執行與連線器追蹤同一筆業務事件。</li>
+        <li><strong>Exception Record</strong> — 專屬清單記錄 Request_ID、CorrelationID、失敗原因、最後有效狀態、發生時間。本 Demo 以 <code>request.exception</code> 模擬，可於「系統管理 → 例外處理」設定。</li>
+        <li><strong>Owner Alert</strong> — 通知流程負責人／維運團隊（而非業務審核人），避免暫時性的連線逾時被誤判為業務層級的拒絕。</li>
+        <li><strong>Recovery 與 Idempotency</strong> — 重試以 Request ID + 意圖執行的動作作為冪等鍵，從最後有效狀態重新執行，因此重試後的「核准」不會產生重複的 Approval History 紀錄、重複通知或重複付款。本 Demo 的 Retry 僅清除例外旗標並確認狀態未被重複套用。</li>
+      </ul>` : `
+      <h3>Exception handling</h3>
+      <ul class="small">
+        <li><strong>Try/Catch scopes</strong> — each Power Automate action (approval write, notification, payment write) runs inside a Scope with a parallel Catch branch.</li>
+        <li><strong>Correlation ID</strong> — every flow run stamps a CorrelationID onto the Exception Record so support can trace a single business event across multiple flow runs and connectors.</li>
+        <li><strong>Exception Record</strong> — a dedicated list capturing Request_ID, CorrelationID, failure reason, last valid state, and occurred-at time. This Demo models it as <code>request.exception</code>, settable from Administration → Exception Handling.</li>
+        <li><strong>Owner Alert</strong> — the Flow Owner / Operations team is alerted (not the business approver), so a transient connector timeout doesn't get misread as a business rejection.</li>
+        <li><strong>Recovery & Idempotency</strong> — retry re-runs from the last valid state using an idempotency key (Request ID + intended transition), so a retried "Approve" cannot create a duplicate Approval History row, a duplicate notification, or a duplicate payment. This Demo's Retry simply clears the exception flag and confirms no state was re-applied.</li>
+      </ul>`,
+    ops: zh ? `
+      <h3>部署與維運</h3>
+      <ul class="small">
+        <li><strong>環境分離</strong> — 獨立的 Dev／Test／Prod Power Platform 環境，並以 ALM 流水線推送解決方案，而非手動複製貼上流程。</li>
+        <li><strong>連線參考與服務帳號</strong> — 流程以具名的服務帳號／受控識別執行，而非個人帳號，確保人員異動不影響核准流程。</li>
+        <li><strong>DLP 政策</strong> — Data Loss Prevention 政策限制可存取 Expense 資料的連線器（例如禁止消費型 Email／社群連線器）。</li>
+        <li><strong>保留與敏感度標籤</strong> — Expense 與付款資料套用「機密」敏感度標籤，並依財務／稅務規範設定保留排程。</li>
+        <li><strong>監控</strong> — Power Automate 執行歷程搭配 Log Analytics／Application Insights 儀表板，追蹤失敗率、佇列停留時間與例外數量（對應系統管理頁面的 Workflow Health 面板）。</li>
+        <li><strong>UAT</strong> — 本 Demo 的案例 A–D 是正式 UAT 腳本的雛型；正式上線前須由每個角色的真實具名測試人員各自執行角色化 UAT，而非由單一管理員帳號代勞。</li>
+      </ul>` : `
+      <h3>Deployment & operations</h3>
+      <ul class="small">
+        <li><strong>Environments</strong> — separate Dev / Test / Prod Power Platform environments with ALM pipelines promoting solutions, not manual copy/paste of flows.</li>
+        <li><strong>Connection references & service accounts</strong> — flows run under a named service account / managed identity, never a personal account, so approvals survive staff turnover.</li>
+        <li><strong>DLP policies</strong> — Data Loss Prevention policies restrict which connectors (e.g. no consumer email/social connectors) can touch the Expense data.</li>
+        <li><strong>Retention & sensitivity labels</strong> — Expense and Payment data carries a Confidential sensitivity label with a defined retention schedule aligned to finance/tax requirements.</li>
+        <li><strong>Monitoring</strong> — Power Automate run history + Log Analytics / Application Insights dashboards for failure rate, queue age, and exception volume (mirrors the Workflow Health panel in Administration).</li>
+        <li><strong>UAT</strong> — Cases A–D in this Demo are the seed of a formal UAT script; production sign-off requires role-based UAT executed by real named testers per role, not by one admin account.</li>
+      </ul>`,
+    tradeoffs: zh ? `
+      <h3>架構設計取捨（三項）</h3>
+      <div class="grid cols-3 gap-md">
+        <div class="card card-pad">
+          <h4>取捨 1：切換身分機制</h4>
+          <p class="small muted">Simulated Identity vs. Real Entra Authentication</p>
+          <p class="small"><strong>選擇：</strong>Demo 環境採用前端下拉選單 (Account Switcher) 模擬 5 個不同角色的登入體驗。</p>
+          <p class="small"><strong>風險：</strong>在正式環境中，單純隱藏前端按鈕並不具備真正的安全性；惡意使用者可透過攔截 API 直接嘗試核准單據。</p>
+          <p class="small"><strong>下一步：</strong>部署至正式環境時，將移除下拉選單，改為直接抓取使用者帳號讀取 Entra ID 登入憑證，並在 SharePoint／Lists 資料層套用 Item-level Permissions，確保後端驗證。</p>
+        </div>
+        <div class="card card-pad">
+          <h4>取捨 2：快速原型開發</h4>
+          <p class="small muted">Rapid Prototyping vs. Centralized Relational Data</p>
+          <p class="small"><strong>選擇：</strong>本 Demo 採用 Microsoft Lists（NoSQL-like flat tables）儲存單據與稽核紀錄，以求最快速度建立可互動的 UI。</p>
+          <p class="small"><strong>風險：</strong>Lists 在資料量龐大或需要複雜 Table Join（例如單一報銷單包含多個不同科目的明細列）時，效能與擴充性較差。</p>
+          <p class="small"><strong>下一步：</strong>未來若延伸支援 Purchase 等需要多筆明細的複雜表單，應將資料庫遷移至 Dataverse 或 Azure SQL Database，以獲得完整的關聯式資料庫 (RDBMS) 支援。</p>
+        </div>
+        <div class="card card-pad">
+          <h4>取捨 3：在地瀏覽器暫存</h4>
+          <p class="small muted">Local Browser State vs. Persistent Cloud Data</p>
+          <p class="small"><strong>選擇：</strong>交付形式為單一 HTML（Standalone Package），資料保存在 LocalStorage，以符合「不需安裝開發環境即可開啟」的交付要求（本檔案已實作此機制）。</p>
+          <p class="small"><strong>風險：</strong>關閉視窗或清除瀏覽器資料後，紀錄可能遺失，且無法呈現多人協同簽核的真實體驗（每位使用者各自看到自己瀏覽器裡的單機版資料，而非共享的單一事實來源）。</p>
+          <p class="small"><strong>下一步：</strong>正式上線前，全面將 Data Source 從 LocalStorage 替換為實際的雲端 API（如 Microsoft Graph API 或自建 Backend RESTful API），確保狀態的持久化與一致性。</p>
+        </div>
+      </div>` : `
+      <h3>Architecture trade-offs (three)</h3>
+      <div class="grid cols-3 gap-md">
+        <div class="card card-pad">
+          <h4>Trade-off 1: Identity switching</h4>
+          <p class="small muted">Simulated Identity vs. Real Entra Authentication</p>
+          <p class="small"><strong>Choice:</strong> the Demo gates every identity behind its own sign-in screen (pick an identity, enter its demo password), which is closer to a real login than a bare dropdown — but the "password" is a predictable, publicly-documented demo convention (first name, lowercase), not a real credential.</p>
+          <p class="small"><strong>Risk:</strong> in production, a predictable password is not real security — a malicious user could still guess it or bypass the UI and call the API directly to try to approve a request.</p>
+          <p class="small"><strong>Next step:</strong> in production, remove the demo password scheme entirely; read the signed-in user's Entra ID credential directly, and apply Item-level Permissions at the SharePoint/Lists data layer so enforcement happens server-side.</p>
+        </div>
+        <div class="card card-pad">
+          <h4>Trade-off 2: Rapid prototyping</h4>
+          <p class="small muted">Rapid Prototyping vs. Centralized Relational Data</p>
+          <p class="small"><strong>Choice:</strong> this Demo uses Microsoft Lists (NoSQL-like flat tables) to store requests and audit records, for the fastest path to an interactive UI.</p>
+          <p class="small"><strong>Risk:</strong> Lists perform and scale poorly at high data volume or when complex table joins are needed (e.g. a single expense request with multiple line items across different accounts).</p>
+          <p class="small"><strong>Next step:</strong> when extending to more complex multi-line forms such as Purchase, migrate the data layer to Dataverse or Azure SQL Database for full relational (RDBMS) support.</p>
+        </div>
+        <div class="card card-pad">
+          <h4>Trade-off 3: Local browser state</h4>
+          <p class="small muted">Local Browser State vs. Persistent Cloud Data</p>
+          <p class="small"><strong>Choice:</strong> delivered as a single HTML file (Standalone Package), data is kept in LocalStorage to satisfy the "opens without installing a dev environment" delivery requirement — this file implements exactly that.</p>
+          <p class="small"><strong>Risk:</strong> data can be lost if the window is closed or browser data is cleared, and it cannot demonstrate real multi-user collaborative approval (each user only sees their own browser's single-machine copy, not one shared source of truth).</p>
+          <p class="small"><strong>Next step:</strong> before going live, fully replace LocalStorage as the data source with a real cloud API (e.g. Microsoft Graph API or a custom backend RESTful API) to ensure persistence and consistency of state.</p>
+        </div>
+      </div>`,
+    gaps: zh ? `
+      <h3>展示範圍 vs. 正式環境強化項目</h3>
+      <div class="grid cols-2 gap-md">
+        <div class="card card-pad"><h4>✅ 本次已展示的內容</h4><ul class="small">
+          <li>完整的 Requester → Manager → GM → Finance → Cashier → Paid 流程</li>
+          <li>設定驅動的路由（Level 1／2／3，門檻可編輯）</li>
+          <li>五個具名身分的角色分離</li>
+          <li>Append-only 稽核歷程並可匯出</li>
+          <li>Reject／Return／Resubmit 正確回到指定階段</li>
+          <li>已結案 (Paid/Closed) 紀錄鎖定</li>
+          <li>模擬例外與冪等重試</li>
+          <li>EN／中文雙語介面與 LocalStorage 持久化</li>
+        </ul></div>
+        <div class="card card-pad"><h4>🚧 正式環境仍需強化</h4><ul class="small">
+          <li>真實 Entra ID 驗證與列／欄層級安全性</li>
+          <li>伺服器端（流程端）強制執行，而非僅前端檢查</li>
+          <li>具備備份與保留政策的持久化儲存 (Dataverse／SharePoint)</li>
+          <li>路由門檻的多幣別匯率轉換</li>
+          <li>正式的 DLP、敏感度標籤、監控與告警</li>
+          <li>無障礙驗證與更完整的在地化</li>
+          <li>真實檔案上傳／病毒掃描收據</li>
+        </ul></div>
+      </div>` : `
+      <h3>Demo scope vs. Production hardening</h3>
+      <div class="grid cols-2 gap-md">
+        <div class="card card-pad"><h4>✅ Demonstrated in this build</h4><ul class="small">
+          <li>End-to-end Requester → Manager → GM → Finance → Cashier → Paid flow</li>
+          <li>Configuration-driven routing (Level 1/2/3, editable thresholds)</li>
+          <li>Role separation across five named identities</li>
+          <li>Append-only audit history with export</li>
+          <li>Reject / Return / Resubmit resuming at the correct stage</li>
+          <li>Locked Paid/Closed records</li>
+          <li>Simulated exception + idempotent retry</li>
+          <li>EN / 中文 bilingual UI with LocalStorage persistence</li>
+        </ul></div>
+        <div class="card card-pad"><h4>🚧 Production hardening still required</h4><ul class="small">
+          <li>Real Entra ID authentication & row/column-level security</li>
+          <li>Server-side (flow-side) enforcement, not just client-side checks</li>
+          <li>Durable storage (Dataverse/SharePoint) with backup & retention policy</li>
+          <li>Multi-currency FX conversion for routing thresholds</li>
+          <li>Formal DLP, sensitivity labels, monitoring & alerting</li>
+          <li>Accessibility certification & fuller localization</li>
+          <li>Real file upload / virus scanning for receipts</li>
+        </ul></div>
+      </div>`
+  };
+  return `${shellHeader(t('arch_title'))}<div class="tabbar">${tabs}</div><div class="card card-pad">${sections[state.archModule]}</div>`;
+}
+
+/* ---------- ADMINISTRATION ---------- */
+function viewAdmin(){
+  const tabs = [['routing','admin_tab_routing'],['matrix','admin_tab_matrix'],['health','admin_tab_health'],['exceptions','admin_tab_exceptions'],['events','admin_tab_events']];
+  const tabHtml = tabs.map(([k,l])=>`<button class="${state.adminTab===k?'active':''}" data-action="admin-tab" data-tab="${k}">${t(l)}</button>`).join('');
+
+  let body = '';
+  if (state.adminTab==='routing'){
+    body = `
+    <h3>${t('admin_routing_h')}</h3>
+    <p class="small">${t('admin_routing_p')}</p>
+    <div class="row2" style="max-width:520px;">
+      <div class="field"><label for="lvl1">${t('admin_lvl1')}</label><input type="number" id="lvl1" value="${state.config.level1Max}"></div>
+      <div class="field"><label for="lvl2">${t('admin_lvl2')}</label><input type="number" id="lvl2" value="${state.config.level2Max}"></div>
+    </div>
+    <p class="hint">${t('admin_default_hint')}</p>
+    <button class="btn primary" data-action="save-config">${t('admin_save')}</button>`;
+  } else if (state.adminTab==='matrix'){
+    body = `
+    <h3>${t('admin_matrix_h')}</h3>
+    <p class="small">${t('admin_matrix_p')}</p>
+    <div class="table-wrap"><table><thead><tr><th>${t('th_role')}</th><th>${t('th_nameduser')}</th><th>${t('th_entragroup')}</th><th>${t('th_active')}</th></tr></thead><tbody>
+      ${USERS.map(u=>{
+        const isActive = u.active!==false;
+        const roleCell = u.custom
+          ? `<select onchange="onCustomUserRoleChange('${u.id}', this.value)">${['Requester','Manager','GM','Finance','Cashier'].map(r=>`<option value="${r}" ${r===u.role?'selected':''}>${roleLabel(r)}</option>`).join('')}</select>`
+          : roleLabel(u.role);
+        const nameCell = u.custom
+          ? `<input type="text" value="${esc(u.name)}" placeholder="${t('admin_matrix_placeholder')}" oninput="onCustomUserNameInput('${u.id}', this.value)" style="min-width:160px;">`
+          : esc(u.name);
+        return `<tr>
+          <td>${roleCell}</td>
+          <td>${nameCell}</td>
+          <td class="mono">${entraGroupForRole(u.role)}</td>
+          <td><button class="btn sm ${isActive?'primary':''}" data-action="toggle-user-active" data-id="${u.id}">${isActive ? '● '+t('admin_active') : '○ '+t('admin_inactive')}</button></td>
+        </tr>`;
+      }).join('')}
+    </tbody></table></div>
+    <button class="btn gap-sm" data-action="add-new-role">${t('admin_add_role')}</button>`;
+  } else if (state.adminTab==='health'){
+    const byStage = {};
+    ['PendingManager','PendingGM','PendingFinance','PendingPayment','Returned'].forEach(s=>byStage[s]=state.requests.filter(r=>r.status===s).length);
+    const open = state.requests.filter(r=>r.status!=='Paid');
+    body = `
+    <h3>${t('admin_health_h')}</h3>
+    <div class="grid cols-4 gap-md">
+      <div class="card metric"><div class="k">${open.length}</div><div class="l">${t('m_open')}</div></div>
+      <div class="card metric"><div class="k">${byStage.PendingManager+byStage.PendingGM+byStage.PendingFinance}</div><div class="l">${t('m_awaiting_approval')}</div></div>
+      <div class="card metric"><div class="k">${byStage.PendingPayment}</div><div class="l">${t('m_awaiting_payment')}</div></div>
+      <div class="card metric"><div class="k">${state.requests.filter(r=>r.exception).length}</div><div class="l">${t('m_active_exceptions')}</div></div>
+    </div>
+    <div class="dl gap-lg">
+      <dt>${t('admin_flowowner')}</dt><dd>IT Operations — Workflow Platform Team (flow-owner@bvgroup.example)</dd>
+      <dt>${t('admin_ownership')}</dt><dd>${t('admin_ownership_v')}</dd>
+    </div>`;
+  } else if (state.adminTab==='exceptions'){
+    const candidates = state.requests.filter(r=>r.status!=='Paid' && !r.exception);
+    const active = state.requests.filter(r=>r.exception);
+    body = `
+    <h3>${t('admin_exc_h')}</h3>
+    <p class="small">${t('admin_exc_p')}</p>
+    <div class="btnrow">
+      <select id="excTarget">${candidates.length? candidates.map(r=>`<option value="${r.id}">${r.id} — ${r.purpose}</option>`).join('') : '<option value="">'+t('admin_exc_none')+'</option>'}</select>
+      <button class="btn danger" data-action="simulate-exception" ${!candidates.length?'disabled':''}>${t('admin_exc_simulate')}</button>
+    </div>
+    <h3 class="gap-lg">${t('admin_exc_active')}</h3>
+    ${active.length ? active.map(r=>`
+      <div class="card card-pad gap-sm">
+        <div class="flex-between"><strong>${r.id}</strong><span class="badge bad mono">${r.exception.correlationId}</span></div>
+        <p class="small">${esc(r.exception.message)}</p>
+        <p class="small muted">${t('admin_exc_lastvalid',{state:r.exception.lastValidState, time:fmtTS(r.exception.occurredAt)})}</p>
+        <button class="btn primary sm" data-action="retry-exception" data-id="${r.id}">${t('admin_exc_retry')}</button>
+      </div>`).join('') : '<p class="muted">'+t('admin_exc_noactive')+'</p>'}
+    `;
+  } else if (state.adminTab==='events'){
+    body = `
+    <div class="flex-between"><h3>${t('admin_events_h')}</h3><button class="btn sm" data-action="export-all">${t('admin_events_export')}</button></div>
+    <div class="table-wrap"><table><thead><tr><th>${t('th_time')}</th><th>${t('th_actor')}</th><th>${t('th_type')}</th><th>${t('th_message')}</th></tr></thead><tbody>
+      ${state.systemEvents.length ? state.systemEvents.map(e=>`<tr><td class="mono small">${fmtTS(e.ts)}</td><td>${esc(e.actor)}</td><td><span class="badge neutral">${e.type}</span></td><td>${esc(e.message)}</td></tr>`).join('') : '<tr><td colspan="4" class="muted center" style="padding:20px;">'+t('admin_events_none')+'</td></tr>'}
+    </tbody></table></div>`;
+  }
+  return `${shellHeader(t('admin_title'))}<div class="tabbar">${tabHtml}</div><div class="card card-pad">${body}</div>`;
+}
+
+/* ---------- DEMO GUIDE ---------- */
+function viewGuide(){
+  const cases = [
+    {id:'A', t:t('guide_caseA_t'), amount:'NT$3,000', proof:t('guide_caseA_proof')},
+    {id:'B', t:t('guide_caseB_t'), amount:'NT$12,000', proof:t('guide_caseB_proof')},
+    {id:'C', t:t('guide_caseC_t'), amount:'NT$50,000', proof:t('guide_caseC_proof')},
+    {id:'D', t:t('guide_caseD_t'), amount:'NT$8,000', proof:t('guide_caseD_proof')},
+  ];
+  const caseCards = cases.map(c=>{
+    const req = state.requests.find(r=>r.caseTag===c.id);
+    return `<div class="card card-pad">
+      <div class="flex-between"><h3>Case ${c.id} — ${c.t}</h3><span class="badge info">${c.amount}</span></div>
+      <p class="small">${c.proof}</p>
+      <div class="btnrow">
+        ${req ? `<button class="btn sm" data-action="nav-detail" data-id="${req.id}">${t('guide_open')} ${req.id}</button>` : '<span class="muted small">'+t('guide_restore')+'</span>'}
+        <button class="btn sm" data-action="goto-login-as" data-id="u1">${t('guide_startasreq')}</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `
+  ${shellHeader(t('guide_title'), t('guide_sub'))}
+  <div class="card card-pad gap-md">
+    <h3>${t('guide_runofshow')}</h3>
+    <table><tbody>
+      <tr><td class="mono small">0–5 min</td><td>${t('guide_step1')}</td><td class="small">${t('guide_step1d')}</td></tr>
+      <tr><td class="mono small">5–12 min</td><td>${t('guide_step2')}</td><td class="small">${t('guide_step2d')}</td></tr>
+      <tr><td class="mono small">12–30 min</td><td>${t('guide_step3')}</td><td class="small">${t('guide_step3d')}</td></tr>
+      <tr><td class="mono small">30–35 min</td><td>${t('guide_step4')}</td><td class="small">${t('guide_step4d')}</td></tr>
+      <tr><td class="mono small">35–40 min</td><td>${t('guide_step5')}</td><td class="small">${t('guide_step5d')}</td></tr>
+    </tbody></table>
+  </div>
+  <h2 class="gap-lg">${t('guide_cases_title')}</h2>
+  <div class="grid cols-2 gap-md">${caseCards}</div>
+  <div class="card card-pad gap-lg">
+    <h3>${t('guide_identities')}</h3>
+    <table><tbody>
+      ${activeUsers().map(u=>`<tr><td><strong>${u.name}</strong></td><td>${roleLabel(u.role)}</td><td class="small muted">${userDept(u)}</td><td><button class="btn sm" data-action="goto-login-as" data-id="${u.id}">${t('guide_switch')}</button></td></tr>`).join('')}
+    </tbody></table>
+    <p class="hint gap-sm">${t('guide_switch_hint')}</p>
+  </div>`;
+}
+
+/* ================================================================
+   SHELL + ROUTER
+   ================================================================ */
+const NAV_ITEMS = [
+  ['home','nav_home','🏠'], ['expense','nav_expense','🧾'], ['mywork','nav_mywork','✅'],
+  ['architecture','nav_architecture','🏗️'], ['guide','nav_guide','📘'], ['admin','nav_admin','⚙️'],
+];
+const VIEW_FN = {home:viewHome, expense:viewExpense, mywork:viewMyWork, detail:viewDetail, architecture:viewArchitecture, admin:viewAdmin, guide:viewGuide, myaccount:viewMyAccount};
+
+function render(){
+  saveState();
+  applyLangFonts();
+  if (!state.authenticated){
+    document.getElementById('app').innerHTML = viewLogin();
+    return;
+  }
+  const u = currentUser();
+  const nav = NAV_ITEMS.map(([k,l,ic])=>`<button class="navitem ${state.view===k?'active':''}" data-action="nav" data-view="${k}"><span class="ic">${ic}</span>${t(l)}</button>`).join('');
+  const unread = unreadCountFor(u.id);
+  const myNotifs = state.notifications.filter(n=>n.userId===u.id).slice(0,12);
+  const companyName = COMPANY[state.lang] || COMPANY.en;
+
+  document.getElementById('app').innerHTML = `
+    <div class="sidebar ${state.sidebarOpen?'open':''}">
+      <div class="brand"><div class="brand-mark">BV</div><div class="brand-text"><div class="name">${t('brand_name')}</div><div class="tag">${t('brand_tag')}</div></div></div>
+      <nav class="mainnav"><div class="navlabel">${state.lang==='zh'?'導覽':'Navigate'}</div>${nav}</nav>
+      <div class="sidebar-foot">${t('sidebar_foot')}<br>${storageOK ? '💾 '+t('storage_on') : '⚠ '+t('storage_off')}</div>
+    </div>
+    <div class="main-col">
+      <div class="demo-banner">
+        <span>🧪 ${t('demo_banner')}</span>
+        <div class="lang-toggle">
+          <button class="${state.lang==='en'?'active':''}" data-action="set-lang" data-lang="en">EN</button>
+          <button class="${state.lang==='zh'?'active':''}" data-action="set-lang" data-lang="zh">中文</button>
+        </div>
+      </div>
+      <div class="topbar">
+        <button class="hamburger" data-action="toggle-sidebar" aria-label="Toggle navigation">☰</button>
+        <div class="title-block"><div class="sub">${companyName} · ${t('signed_in_as')}</div></div>
+        <div class="identity-switch">
+          <button class="bell-btn" data-action="toggle-notif" aria-label="Notifications">🔔${unread?'<span class="bell-dot">'+unread+'</span>':''}</button>
+          ${state.notifDropdown ? `<div class="dropdown notif-dropdown">
+            <div class="dd-title">${t('notif_title')}</div>
+            ${myNotifs.length ? myNotifs.map(n=>`<div class="notif-item"><div class="msg">${esc(n.message)}</div><div class="meta">${fmtTS(n.ts)}</div></div>`).join('') : '<div class="notif-empty">'+t('notif_empty')+'</div>'}
+          </div>` : ''}
+        </div>
+        <div class="identity-switch">
+          <button class="identity-btn" data-action="toggle-identity">
+            <span class="avatar">${u.name.split(' ').map(s=>s[0]).join('')}</span>
+            <span class="id-text"><span class="nm">${u.name}</span><br><span class="rl">${roleLabel(u.role)}</span></span>
+            <span>▾</span>
+          </button>
+          ${state.identityDropdown ? `<div class="dropdown" style="width:280px;">
+            <div class="dd-title">${t('member_signed_in_as')}: ${esc(u.name)}</div>
+            <button class="dd-item" data-action="open-myaccount">
+              <span class="avatar"><i class="fa-solid fa-id-badge" aria-hidden="true" style="font-size:.8rem;"></i></span>
+              <span class="nm">${t('member_myaccount')}</span>
+            </button>
+            <button class="dd-item" data-action="switch-user-login">
+              <span class="avatar"><i class="fa-solid fa-right-left" aria-hidden="true" style="font-size:.8rem;"></i></span>
+              <span class="nm">${t('member_switch_user')}</span>
+            </button>
+            <div style="border-top:1px solid var(--line);margin:6px 0 4px;"></div>
+            <button class="dd-item" data-action="logout" style="color:var(--bad);">
+              <span class="avatar" style="background:var(--bad);"><i class="fa-solid fa-right-from-bracket" aria-hidden="true" style="font-size:.8rem;"></i></span>
+              <span class="nm">${t('member_logout')}</span>
+            </button>
+          </div>` : ''}
+        </div>
+      </div>
+      <div class="content"><div id="viewRoot">${(VIEW_FN[state.view]||viewHome)()}</div></div>
+      ${state.detailModalId ? requestDetailModal() : ''}
+      ${state.newExpenseOpen ? newExpenseModal() : ''}
+      ${state.actionModal ? actionModal() : ''}
+    </div>
+  `;
+}
+function renderInto(sel, fn){ document.querySelector(sel).innerHTML = fn(); }
+
+/* ---------------- Export helpers ---------------- */
+function downloadBlob(filename, content, mime){
+  const blob = new Blob([content], {type:mime||'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; document.body.appendChild(a); a.click();
+  setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 200);
+}
+function exportOne(id){
+  const req = state.requests.find(r=>r.id===id);
+  if (!req) return;
+  downloadBlob(id+'-audit-history.json', JSON.stringify(req, null, 2), 'application/json');
+  toast(t('toast_exported_one',{id}), 'good');
+}
+function exportAll(){
+  const rows = [['Request_ID','Actor_Name','Role','Action','Prior_Status','Resulting_Status','Comment_Reason','Timestamp']];
+  state.requests.forEach(r=> r.history.forEach(h=> rows.push([r.id,h.actor,h.role,h.action,h.prior,h.resulting,(h.comment||'').replace(/\n/g,' '),h.ts]) ));
+  const csv = rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  downloadBlob('bv-audit-log.csv', csv, 'text/csv');
+  toast(t('toast_exported_all'), 'good');
+}
+
+/* ================================================================
+   EVENT DELEGATION
+   ================================================================ */
+document.addEventListener('submit', function(e){
+  if (e.target && e.target.id==='loginForm'){ e.preventDefault(); handleLogin(); }
+});
+document.addEventListener('click', function(e){
+  if (e.target.classList && e.target.classList.contains('modal-backdrop')){
+    if (state.actionModal){ state.actionModal = null; }
+    else if (state.detailModalId){ state.detailModalId = null; }
+    else { state.newExpenseOpen = false; state.editingRequestId=null; }
+    render(); return;
+  }
+  const el = e.target.closest('[data-action]');
+  if (!el){
+    if (!e.target.closest('.identity-switch')){
+      if (state.identityDropdown || state.notifDropdown){ state.identityDropdown=false; state.notifDropdown=false; render(); }
+    }
+    return;
+  }
+  const a = el.dataset.action;
+  if (a==='nav'){ state.view = el.dataset.view; state.sidebarOpen=false; render(); }
+  else if (a==='nav-detail'){ state.selectedRequestId = el.dataset.id; state.view='detail'; render(); }
+  else if (a==='view-detail-modal'){ state.detailModalId = el.dataset.id; render(); }
+  else if (a==='close-detail-modal'){ state.detailModalId = null; render(); }
+  else if (a==='edit-request'){
+    const req = state.requests.find(r=>r.id===el.dataset.id);
+    if (req){
+      state.editingRequestId = req.id;
+      state.neAmount = req.amount ? String(req.amount) : '';
+      state.neCurrency = req.currency || 'TWD';
+      state.neAttach = req.attachment.missing ? 'missing' : 'ok';
+      state.newExpenseOpen = true;
+      state.detailModalId = null;
+    }
+    render();
+  }
+  else if (a==='toggle-sidebar'){ state.sidebarOpen = !state.sidebarOpen; render(); }
+  else if (a==='toggle-identity'){ state.identityDropdown = !state.identityDropdown; state.notifDropdown=false; render(); }
+  else if (a==='open-myaccount'){ state.prevView = state.view; state.view='myaccount'; state.identityDropdown=false; render(); }
+  else if (a==='demo-noop'){ toast(t('ma_demo_only')); }
+  else if (a==='logout'){ handleLogout(); }
+  else if (a==='noop-forgot'){ toast(state.lang==='zh' ? '此為展示環境，無需重設密碼。' : 'This is a demo environment — password reset is not needed.'); }
+  else if (a==='toggle-notif'){
+    state.notifDropdown = !state.notifDropdown; state.identityDropdown=false;
+    if (state.notifDropdown){ state.notifications.filter(n=>n.userId===state.currentUserId).forEach(n=>n.read=true); }
+    render();
+  }
+  else if (a==='switch-user'){ const nm=userById(el.dataset.id).name; state.currentUserId = el.dataset.id; state.identityDropdown=false; render(); toast(t('toast_switched',{name:nm})); }
+  else if (a==='switch-user-login'){ handleGotoLoginAs(state.currentUserId); }
+  else if (a==='goto-login-as'){ handleGotoLoginAs(el.dataset.id); }
+  else if (a==='reset-demo'){ resetDemo(); }
+  else if (a==='expense-filter'){ state.expenseFilter = el.dataset.filter; render(); }
+  else if (a==='open-new-expense'){ state.newExpenseOpen = true; state.editingRequestId=null; state.neAmount=''; state.neCurrency='TWD'; state.neAttach='ok'; render(); }
+  else if (a==='close-new-expense'){ state.newExpenseOpen = false; state.editingRequestId=null; render(); }
+  else if (a==='submit-new-expense'){ handleSubmitNewExpense(); }
+  else if (a==='save-draft-expense'){ handleSaveDraftExpense(); }
+  else if (a==='open-action'){ state.actionModal = {requestId: el.dataset.id, act: el.dataset.act}; render(); }
+  else if (a==='close-action'){ state.actionModal = null; render(); }
+  else if (a==='confirm-action'){ handleConfirmAction(el.dataset.id, el.dataset.act); }
+  else if (a==='arch-tab'){ state.archModule = el.dataset.tab; render(); }
+  else if (a==='admin-tab'){ state.adminTab = el.dataset.tab; render(); }
+  else if (a==='save-config'){ handleSaveConfig(); }
+  else if (a==='simulate-exception'){ handleSimulateException(); }
+  else if (a==='toggle-user-active'){ handleToggleUserActive(el.dataset.id); }
+  else if (a==='add-new-role'){ handleAddNewRole(); }
+  else if (a==='retry-exception'){ handleRetryException(el.dataset.id); }
+  else if (a==='export-one'){ exportOne(el.dataset.id); }
+  else if (a==='export-all'){ exportAll(); }
+  else if (a==='set-lang'){ state.lang = el.dataset.lang; render(); }
+});
+
+function readNewExpenseForm(){
+  return {
+    dept: document.getElementById('neDept').value,
+    date: document.getElementById('neDate').value,
+    type: document.getElementById('neType').value,
+    amountRaw: document.getElementById('neAmount').value,
+    currency: document.getElementById('neCurrency').value,
+    purpose: document.getElementById('nePurpose').value.trim(),
+    cc: document.getElementById('neCC').value.trim(),
+    payee: document.getElementById('nePayee').value.trim(),
+    attachSel: document.getElementById('neAttach').value,
+    file: (document.getElementById('neReceiptFile') && document.getElementById('neReceiptFile').files[0]) || null,
+  };
+}
+/* Resolves the attachment object from the current form + (optionally) the draft being edited.
+   Returns null when a receipt is required (attachSel==='ok') but neither a new file was chosen
+   nor an existing file is already on record — the caller must then block submission. */
+function resolveAttachment(f, editingReq){
+  if (f.attachSel==='missing') return {filename:null, missing:true};
+  if (f.file) return {filename:f.file.name, missing:false};
+  if (editingReq && !editingReq.attachment.missing && editingReq.attachment.filename) return editingReq.attachment;
+  return null;
+}
+function handleSubmitNewExpense(){
+  const u = currentUser();
+  if (u.role!=='Requester'){ toast(t('toast_fillall'), 'bad'); return; }
+  const f = readNewExpenseForm();
+  const amount = Number(f.amountRaw);
+  const amountValid = f.amountRaw!=='' && !isNaN(amount) && amount>0;
+  if (!amountValid){
+    const amtEl = document.getElementById('neAmount');
+    if (amtEl) amtEl.classList.add('invalid');
+    const errEl = document.getElementById('neAmountError');
+    if (errEl) errEl.innerHTML = '<div class="err-text">'+t('ne_amount_error')+'</div>';
+  }
+  if (!f.date || !amountValid || !f.purpose || !f.cc || !f.payee){ toast(t('toast_fillall'), 'bad'); return; }
+
+  const editingReq = state.editingRequestId ? state.requests.find(r=>r.id===state.editingRequestId) : null;
+  const isResubmitMode = !!(editingReq && (editingReq.status==='Returned' || editingReq.status==='Rejected'));
+
+  let resubmitNote = '';
+  if (isResubmitMode){
+    const noteEl = document.getElementById('resubmitNote');
+    resubmitNote = noteEl ? noteEl.value.trim() : '';
+    if (!resubmitNote){
+      toast(t('toast_commentreq'), 'bad');
+      const errEl = document.getElementById('resubmitNoteError');
+      if (errEl) errEl.innerHTML = '<div class="err-text">'+t('toast_commentreq')+'</div>';
+      return;
+    }
+  }
+
+  const attachment = resolveAttachment(f, editingReq);
+  if (attachment===null){
+    const errEl = document.getElementById('neFileError');
+    if (errEl) errEl.innerHTML = '<div class="err-text">'+t('ne_file_required')+'</div>';
+    toast(t('toast_file_required'), 'bad');
+    return;
+  }
+
+  if (editingReq){
+    editingReq.department=f.dept; editingReq.expenseDate=f.date; editingReq.expenseType=f.type;
+    editingReq.amount=amount; editingReq.currency=f.currency; editingReq.purpose=f.purpose;
+    editingReq.costCenter=f.cc; editingReq.payee=f.payee; editingReq.attachment=attachment;
+    const ok = isResubmitMode
+      ? applyAction(editingReq, 'resubmit', {comment: resubmitNote})
+      : applyAction(editingReq, 'submit-draft', {});
+    if (!ok) return;
+    state.newExpenseOpen = false;
+    state.editingRequestId = null;
+    state.selectedRequestId = editingReq.id;
+    state.view = 'detail';
+    render();
+    if (isResubmitMode) toast(t('toast_resubmitted',{id:editingReq.id, stage:roleLabel(editingReq.currentStage)}), 'good');
+    else toast(t('toast_submitted',{id:editingReq.id, stage:roleLabel(editingReq.currentStage)}), 'good');
+    return;
+  }
+
+  const req = buildRequest({requesterId:u.id, department:f.dept, expenseDate:f.date, expenseType:f.type, amount, currency:f.currency, purpose:f.purpose, costCenter:f.cc, payee:f.payee, attachment});
+  state.requests.push(req);
+  logSystemEvent(u.name, 'Submission', req.id+' submitted (Level '+req.routeLevel+').');
+  state.newExpenseOpen = false;
+  state.selectedRequestId = req.id;
+  state.view = 'detail';
+  render();
+  toast(t('toast_submitted',{id:req.id, stage:roleLabel(req.currentStage)}), 'good');
+}
+function handleSaveDraftExpense(){
+  const u = currentUser();
+  if (u.role!=='Requester'){ toast(t('toast_fillall'), 'bad'); return; }
+  const f = readNewExpenseForm();
+  const amount = Number(f.amountRaw);
+  const amountValid = f.amountRaw!=='' && !isNaN(amount) && amount>0;
+
+  const editingReq = state.editingRequestId ? state.requests.find(r=>r.id===state.editingRequestId) : null;
+  const resolved = resolveAttachment(f, editingReq);
+  const attachment = resolved===null ? {filename:null, missing:true} : resolved; // lenient for drafts
+
+  if (editingReq){
+    editingReq.department=f.dept; editingReq.expenseDate=f.date||null; editingReq.expenseType=f.type;
+    editingReq.amount = amountValid ? amount : 0; editingReq.currency=f.currency;
+    editingReq.purpose=f.purpose; editingReq.costCenter=f.cc; editingReq.payee=f.payee;
+    editingReq.attachment=attachment;
+    editingReq.history.push(mkEvent({requestId:editingReq.id, actor:u.name, role:roleLabel('Requester'), action:'Draft', comment:'Draft updated.', prior:'Draft', resulting:'Draft'}));
+    logSystemEvent(u.name, 'Draft', editingReq.id+' draft updated.');
+    state.newExpenseOpen = false;
+    state.editingRequestId = null;
+    state.selectedRequestId = editingReq.id;
+    state.view = 'detail';
+    render();
+    toast(t('toast_draft_saved',{id:editingReq.id}), 'good');
+    return;
+  }
+
+  const req = buildDraftRequest({
+    requesterId:u.id, department:f.dept, expenseDate:f.date||null, expenseType:f.type,
+    amount: amountValid ? amount : 0, currency:f.currency, purpose:f.purpose, costCenter:f.cc, payee:f.payee, attachment
+  });
+  state.requests.push(req);
+  logSystemEvent(u.name, 'Draft', req.id+' saved as draft.');
+  state.newExpenseOpen = false;
+  state.selectedRequestId = req.id;
+  state.view = 'detail';
+  render();
+  toast(t('toast_draft_saved',{id:req.id}), 'good');
+}
+
+function handleConfirmAction(id, act){
+  const req = state.requests.find(r=>r.id===id);
+  if (!req) return;
+  if (act==='approve' || act==='reject' || act==='return'){
+    const comment = document.getElementById('cmtInput').value.trim();
+    if (!comment){
+      toast(t('toast_commentreq'), 'bad');
+      const errEl = document.getElementById('cmtError');
+      if (errEl) errEl.innerHTML = '<div class="err-text">'+t('toast_commentreq')+'</div>';
+      return;
+    }
+    const target = act==='return' ? document.getElementById('returnTarget').value : undefined;
+    const ok = applyAction(req, act, {comment, target});
+    if (ok){ state.actionModal=null; render(); toast(req.id+' '+(act==='approve'?t('toast_approved'):(act==='reject'?t('toast_rejected'):t('toast_returnedv')))+'.', 'good'); }
+  } else if (act==='pay'){
+    const paymentRef = document.getElementById('payRef').value.trim();
+    const paymentDate = document.getElementById('payDate').value;
+    if (!paymentRef || !paymentDate){ toast(t('toast_payreq'), 'bad'); return; }
+    const ok = applyAction(req, 'pay', {paymentRef, paymentDate});
+    if (ok){ state.actionModal=null; render(); toast(t('toast_paidclosed',{id:req.id}), 'good'); }
+  } else if (act==='resubmit'){
+    const comment = document.getElementById('cmtInput').value.trim();
+    if (!comment){
+      toast(t('toast_commentreq'), 'bad');
+      const errEl = document.getElementById('cmtError');
+      if (errEl) errEl.innerHTML = '<div class="err-text">'+t('toast_commentreq')+'</div>';
+      return;
+    }
+    const fixEl = document.getElementById('fixFile');
+    const attachmentFilename = fixEl ? fixEl.value.trim() : null;
+    const ok = applyAction(req, 'resubmit', {comment, attachmentFilename});
+    if (ok){ state.actionModal=null; render(); toast(t('toast_resubmitted',{id:req.id, stage:roleLabel(req.currentStage)}), 'good'); }
+  }
+}
+
+function handleSaveConfig(){
+  const l1 = Number(document.getElementById('lvl1').value);
+  const l2 = Number(document.getElementById('lvl2').value);
+  if (!(l1>0 && l2>l1)){ toast(t('toast_config_invalid'), 'bad'); return; }
+  const old = {...state.config};
+  state.config = {level1Max:l1, level2Max:l2};
+  logSystemEvent(currentUser().name, 'Configuration', 'Routing thresholds changed: L1 '+old.level1Max+'→'+l1+', L2 '+old.level2Max+'→'+l2+'. Applies to new submissions only.');
+  toast(t('toast_config_saved'), 'good');
+  render();
+}
+function onCustomUserNameInput(id, value){
+  const u = userById(id);
+  if (u){ u.name = value; saveState(); }
+}
+function onCustomUserRoleChange(id, value){
+  const u = userById(id);
+  if (u){ u.role = value; u.group = entraGroupForRole(value); render(); }
+}
+function handleToggleUserActive(id){
+  const u = userById(id);
+  if (!u) return;
+  const wasActive = u.active!==false;
+  u.active = !wasActive;
+  logSystemEvent(currentUser().name, 'Configuration', u.name+' ('+roleLabel(u.role)+') '+(u.active?'activated':'deactivated')+'.');
+  if (!u.active && state.currentUserId===u.id){
+    const fallback = activeUsers()[0];
+    if (fallback){
+      state.currentUserId = fallback.id;
+      toast(t('toast_user_deactivated',{name:u.name, fallback:fallback.name}), 'bad');
+    }
+  } else if (u.active){
+    toast(t('toast_user_activated',{name:u.name}), 'good');
+  }
+  render();
+}
+function handleAddNewRole(){
+  const newId = uid('U');
+  USERS.push({id:newId, name:'', role:'Manager', title_en:'', title_zh:'', dept_en:'', dept_zh:'', group:entraGroupForRole('Manager'), active:true, custom:true});
+  logSystemEvent(currentUser().name, 'Configuration', 'New role assignment row added.');
+  render();
+}
+function handleSimulateException(){
+  const sel = document.getElementById('excTarget');
+  const id = sel && sel.value;
+  const req = state.requests.find(r=>r.id===id);
+  if (!req) return;
+  req.exception = {
+    correlationId: uid('COR'),
+    message: 'Transient connector timeout calling the Approval Notification flow. Last committed state preserved; no data was lost.',
+    occurredAt: nowISO(), lastValidState: req.status,
+  };
+  logSystemEvent('System', 'Exception', 'Simulated flow failure on '+req.id+' (Correlation '+req.exception.correlationId+'). Flow Owner alerted.');
+  toast(t('toast_exception_sim',{id:req.id}), 'bad');
+  render();
+}
+function handleRetryException(id){
+  const req = state.requests.find(r=>r.id===id);
+  if (!req || !req.exception) return;
+  const cor = req.exception.correlationId;
+  req.exception = null;
+  logSystemEvent(currentUser().name, 'Recovery', 'Retried '+req.id+' (Correlation '+cor+'). Idempotent retry confirmed — state resumed at '+req.status+' with no duplicate transition, notification, or payment.');
+  toast(t('toast_exception_recovered',{id:req.id}), 'good');
+  render();
+}
+
+/* ---------------- Font switching per language (spec section 1) ---------------- */
+function applyLangFonts(){
+  const root = document.documentElement;
+  if (state.lang==='zh'){
+    root.style.setProperty('--font-body', "'Microsoft JhengHei','PMingLiU','Heiti TC',sans-serif");
+    root.style.setProperty('--font-display', "'Microsoft JhengHei','PMingLiU','Heiti TC',sans-serif");
+    root.setAttribute('lang','zh-Hant');
+  } else {
+    root.style.setProperty('--font-body', "Arial, Helvetica, sans-serif");
+    root.style.setProperty('--font-display', "Arial, Helvetica, sans-serif");
+    root.setAttribute('lang','en');
+  }
+}
+/* ---------------- Init ---------------- */
+storageOK = detectStorage();
+const restored = loadState();
+if (!restored){
+  state.requests = seedRequests();
+  logSystemEvent('System', 'Init', 'Demo environment initialized. Cases A–D seeded.');
+}
+render();
+</script>
+</body>
+</html>
